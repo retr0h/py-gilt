@@ -1,0 +1,24 @@
+---
+- git: https://github.com/retr0h/ansible-etcd.git
+  version: master
+  dst: roles/retr0h.ansible-etcd
+
+- git: https://github.com/lorin/openstack-ansible-modules.git
+  version: master
+  files:
+    - src: "*_manage"
+      dst: library/
+    - src: nova_quota
+      dst: library/
+
+- git: https://github.com/blueboxgroup/ursula.git
+  version: master
+  files:
+    - src: roles/logging
+      dst: roles/blueboxgroup.logging
+
+- git: https://github.com/blueboxgroup/ursula.git
+  version: RELEASE-3.1.x
+  files:
+    - src: roles/apache
+      dst: roles/blueboxgroup.apache

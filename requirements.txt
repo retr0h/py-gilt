@@ -1,0 +1,6 @@
+click
+colorama
+giturlparse.py
+pbr
+PyYAML
+sh
