@@ -13,6 +13,11 @@ Overlay a remote repository into the destination provided.
 
   $ gilt overlay
 
+Documentation
+=============
+
+https://metacloud.github.io/gilt/
+
 License
 =======
 
