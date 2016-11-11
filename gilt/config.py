@@ -90,7 +90,7 @@ def _get_config(filename):
 def _get_dst_dir(d):
     wd = os.getcwd()
     if d.get('dst'):
-        return os.path.join(wd, d.get('dst'), '')
+        return os.path.join(wd, d.get('dst'))
 
 
 def _get_clone_dir():

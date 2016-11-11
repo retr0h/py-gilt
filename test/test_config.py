@@ -95,7 +95,7 @@ def test_get_dst_dir(temp_dir):
     os.chdir(temp_dir.strpath)
     result = config._get_dst_dir({'dst': 'role/foo'})
 
-    assert os.path.join(temp_dir.strpath, 'role', 'foo', '') == result
+    assert os.path.join(temp_dir.strpath, 'role', 'foo') == result
 
 
 def test_get_dst_dir_with_missing_dst(temp_dir):
