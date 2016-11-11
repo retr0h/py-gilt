@@ -66,7 +66,7 @@ def gilt_data():
     return [{
         'git': 'https://github.com/retr0h/ansible-etcd.git',
         'version': 'master',
-        'dst': 'roles/retr0h.ansible-etcd'
+        'dst': 'roles/retr0h.ansible-etcd/'
     }, {
         'git': 'https://github.com/lorin/openstack-ansible-modules.git',
         'version': 'master',

@@ -81,7 +81,9 @@ def test_overlay(mocker, temp_dir):
     # yapf: disable
     files = [
         mocker.Mock(src=os.path.join(clone_dir, '*_manage'), dst=dst_dir),
-        mocker.Mock(src=os.path.join(clone_dir, 'Makefile'), dst=dst_dir),
+        mocker.Mock(src=os.path.join(clone_dir, 'nova_quota'), dst=dst_dir),
+        mocker.Mock(src=os.path.join(clone_dir, 'neutron_router'),
+            dst=os.path.join(dst_dir, 'neutron_router.py')),
         mocker.Mock(
             src=os.path.join(clone_dir, 'tests'),
             dst=os.path.join(dst_dir, 'tests'))
@@ -90,6 +92,7 @@ def test_overlay(mocker, temp_dir):
     git.clone(name, repo, clone_dir)
     git.overlay(clone_dir, files, branch)
 
-    assert 5 == len(glob.glob('{}/*_*'.format(dst_dir)))
-    assert 1 == len(glob.glob('{}/Makefile'.format(dst_dir)))
+    assert 5 == len(glob.glob('{}/*_manage'.format(dst_dir)))
+    assert 1 == len(glob.glob('{}/nova_quota'.format(dst_dir)))
+    assert 1 == len(glob.glob('{}/neutron_router.py'.format(dst_dir)))
     assert 2 == len(glob.glob('{}/*'.format(os.path.join(dst_dir, 'tests'))))

@@ -1,7 +1,7 @@
 ---
 - git: https://github.com/retr0h/ansible-etcd.git
   version: master
-  dst: roles/retr0h.ansible-etcd
+  dst: roles/retr0h.ansible-etcd/
 
 - git: https://github.com/lorin/openstack-ansible-modules.git
   version: master
@@ -10,15 +10,17 @@
       dst: library/
     - src: nova_quota
       dst: library/
+    - src: neutron_router
+      dst: library/neutron_router.py
 
 - git: https://github.com/blueboxgroup/ursula.git
   version: master
   files:
     - src: roles/logging
-      dst: roles/blueboxgroup.logging
+      dst: roles/blueboxgroup.logging/
 
 - git: https://github.com/blueboxgroup/ursula.git
   version: RELEASE-3.1.x
   files:
     - src: roles/apache
-      dst: roles/blueboxgroup.apache
+      dst: roles/blueboxgroup.apache/

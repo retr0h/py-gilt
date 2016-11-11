@@ -10,7 +10,7 @@ Overlay a remote repository into the destination provided.
 
   - git: https://github.com/retr0h/ansible-etcd.git
     version: master
-    dst: roles/retr0h.ansible-etcd
+    dst: roles/retr0h.ansible-etcd/
 
 .. code-block:: bash
 
@@ -29,6 +29,8 @@ Overlay files from a remote repository into the destination(s) provided.
         dst: library/
       - src: nova_quota
         dst: library/
+      - src: neutron_router
+        dst: library/neutron_router.py
 
 .. code-block:: bash
 
@@ -43,7 +45,7 @@ Overlay directories from a remote repository into the destination(s) provided.
     version: master
     files:
       - src: roles/logging
-        dst: roles/blueboxgroup.logging
+        dst: roles/blueboxgroup.logging/
 
 .. code-block:: bash
 
