@@ -34,10 +34,9 @@ class ParseError(Exception):
 
 def config(filename):
     """
-    Construct and return a list of Config objects.
+    Construct `Config` object and return a list.
 
-    :param filename: A string containing the path to the config file to
-     parse.
+    :parse filename: A string containing the path to YAML file.
     :return: list
     """
     Config = collections.namedtuple(
@@ -47,6 +46,14 @@ def config(filename):
 
 
 def _get_files_config(src_dir, files_list):
+    """
+    Construct `FileConfig` object and return a list.
+
+    :param src_dir: A string containing the source directory.
+    :param files_list: A list of dicts containing the src/dst mapping of files
+     to overlay.
+    :return: list
+    """
     FilesConfig = collections.namedtuple('FilesConfig', ['src', 'dst'])
 
     return [
@@ -55,6 +62,12 @@ def _get_files_config(src_dir, files_list):
 
 
 def _get_config_generator(filename):
+    """
+    A generator which populates and return a dict.
+
+    :parse filename: A string containing the path to YAML file.
+    :return: dict
+    """
     for d in _get_config(filename):
         parsedrepo = giturlparse.parse(d.get('git'), False)
         name = '{}.{}'.format(parsedrepo.owner, parsedrepo.repo)
@@ -70,6 +83,14 @@ def _get_config_generator(filename):
 
 
 def _get_files_generator(src_dir, files_list):
+    """
+    A generator which populates and return a dict.
+
+    :param src_dir: A string containing the source directory.
+    :param files_list: A list of dicts containing the src/dst mapping of files
+     to overlay.
+    :return: dict
+    """
     if files_list:
         for d in files_list:
             yield {
@@ -79,6 +100,12 @@ def _get_files_generator(src_dir, files_list):
 
 
 def _get_config(filename):
+    """
+    Parse the provided YAML file and return a dict.
+
+    :parse filename: A string containing the path to YAML file.
+    :return: dict
+    """
     with open(filename, 'r') as stream:
         try:
             return yaml.safe_load(stream)
@@ -88,12 +115,24 @@ def _get_config(filename):
 
 
 def _get_dst_dir(d):
+    """
+    Prefix the provided dict's `dst` key with working directory and return a
+    dict.
+
+    :param d: A config dict which contains a `dst` key.
+    :return: str
+    """
     wd = os.getcwd()
     if d.get('dst'):
         return os.path.join(wd, d.get('dst'))
 
 
 def _get_clone_dir():
+    """
+    Construct gilt's clone directory and return a str.
+
+    :return: str
+    """
     path = '~/.gilt/clone'
 
     return os.path.expanduser(path)
