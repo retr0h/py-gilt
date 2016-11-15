@@ -30,12 +30,12 @@ import sh
 from gilt import util
 
 
-def clone(name, repo, destination, debug=False):
+def clone(name, repository, destination, debug=False):
     """
-    Clone the specified repository into a temporary directory.
+    Clone the specified repository into a temporary directory and return None.
 
     :param name: A string containing the name of the repository being cloned.
-    :param repo: A string containing the repository to clone.
+    :param repository: A string containing the repository to clone.
     :param destination: A string containing the directory to clone the
      repository into.
     :param debug: An optional bool to toggle debug output.
@@ -43,15 +43,16 @@ def clone(name, repo, destination, debug=False):
     """
     msg = '  - cloning {} to {}'.format(name, destination)
     util.print_info(msg)
-    cmd = sh.git.bake('clone', repo, destination)
+    cmd = sh.git.bake('clone', repository, destination)
     util.run_command(cmd, debug=debug)
 
 
-def extract(repo, destination, version, debug=False):
+def extract(repository, destination, version, debug=False):
     """
-    Extract the specified repository/version into the given directory.
+    Extract the specified repository/version into the given directory and
+    return None.
 
-    :param repo: A string containing the path to the repository to be
+    :param repository: A string containing the path to the repository to be
      extracted.
     :param destination: A string containing the directory to clone the
      repository into.  Relative to the directory ``gilt`` is running
@@ -61,21 +62,22 @@ def extract(repo, destination, version, debug=False):
     :return: None
     """
     with util.saved_cwd():
-        os.chdir(repo)
+        os.chdir(repository)
         _get_branch(version, debug)
         cmd = sh.git.bake(
             'checkout-index', force=True, all=True, prefix=destination)
         util.run_command(cmd, debug=debug)
-        msg = '  - extracting ({}) {} to {}'.format(version, repo, destination)
+        msg = '  - extracting ({}) {} to {}'.format(version, repository,
+                                                    destination)
         util.print_info(msg)
 
 
-def overlay(repo, files, version, debug=False):
+def overlay(repository, files, version, debug=False):
     """
     Overlay files from the specified repository/version into the given
-    directory.
+    directory and return None.
 
-    :param repo: A string containing the path to the repository to be
+    :param repository: A string containing the path to the repository to be
      extracted.
     :param files: A list of `FileConfig` objects.
     :param version: A string containing the branch/tag/sha to be exported.
@@ -83,7 +85,7 @@ def overlay(repo, files, version, debug=False):
     :return: None
     """
     with util.saved_cwd():
-        os.chdir(repo)
+        os.chdir(repository)
         _get_branch(version, debug)
 
         for fc in files:
@@ -103,6 +105,18 @@ def overlay(repo, files, version, debug=False):
 
 
 def _get_branch(version, debug=False):
+    """
+    Handle switching to the specified version and return None.
+
+    1. Clean the repository before we begin.
+    2. Fetch the origin.
+    3. Checkout the specified version.
+    4. Pull the origin when a branch; _not_ a commit id.
+
+    :param version: A string containing the branch/tag/sha to be exported.
+    :param debug: An optional bool to toggle debug output.
+    :return: None
+    """
     cmd = sh.git.bake('clean', '-d', '-x', '-f')
     util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('fetch')

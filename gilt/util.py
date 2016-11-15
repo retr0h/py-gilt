@@ -56,6 +56,7 @@ def run_command(cmd, debug=False):
 
 @contextlib.contextmanager
 def saved_cwd():
+    """ Context manager to restore previous working directory. """
     saved = os.getcwd()
     try:
         yield
@@ -64,6 +65,17 @@ def saved_cwd():
 
 
 def copy(src, dst):
+    """
+    Handle the copying of a file or directory.
+
+    The destination basedir _must_ exist.
+
+    :param src: A string containing the path of the source to copy.  If the
+     source ends with a '/', will become a recursive directory copy of source.
+    :param dst: A string containing the path to the destination.  If the
+     destination ends with a '/', will copy into the target directory.
+    :return: None
+    """
     try:
         shutil.copytree(src, dst)
     except OSError as exc:
