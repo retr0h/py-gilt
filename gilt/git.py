@@ -123,6 +123,6 @@ def _get_branch(version, debug=False):
     util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('checkout', version)
     util.run_command(cmd, debug=debug)
-    if not re.match(r'\b[0-9a-f]{7,40}\b', version):
+    if not re.match(r'\b[0-9a-f]{7,40}\b', str(version)):
         cmd = sh.git.bake('pull', rebase=True, ff_only=True)
         util.run_command(cmd, debug=debug)
