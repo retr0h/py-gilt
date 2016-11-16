@@ -83,7 +83,7 @@ def test_overlay(mocker, temp_dir):
         mocker.Mock(src=os.path.join(clone_dir, '*_manage'), dst=dst_dir),
         mocker.Mock(src=os.path.join(clone_dir, 'nova_quota'), dst=dst_dir),
         mocker.Mock(src=os.path.join(clone_dir, 'neutron_router'),
-            dst=os.path.join(dst_dir, 'neutron_router.py')),
+                    dst=os.path.join(dst_dir, 'neutron_router.py')),
         mocker.Mock(
             src=os.path.join(clone_dir, 'tests'),
             dst=os.path.join(dst_dir, 'tests'))
