@@ -24,6 +24,7 @@ import glob
 import os
 
 import pytest
+import sh
 
 from gilt import git
 
@@ -96,3 +97,53 @@ def test_overlay(mocker, temp_dir):
     assert 1 == len(glob.glob('{}/nova_quota'.format(dst_dir)))
     assert 1 == len(glob.glob('{}/neutron_router.py'.format(dst_dir)))
     assert 2 == len(glob.glob('{}/*'.format(os.path.join(dst_dir, 'tests'))))
+
+
+@pytest.fixture()
+def patched_run_command(mocker):
+    return mocker.patch('gilt.util.run_command')
+
+
+def test_get_branch(mocker, patched_run_command):
+    git._get_branch('branch')
+    expected = [
+        mocker.call(
+            sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
+        mocker.call(
+            sh.git.bake('fetch'), debug=False),
+        mocker.call(
+            sh.git.bake('checkout', 'branch'), debug=False),
+        mocker.call(
+            sh.git.bake(
+                'pull', rebase=True, ff_only=True), debug=False),
+    ]
+
+    assert expected == patched_run_command.mock_calls
+
+
+def test_get_branch_does_not_pull_on_sha(mocker, patched_run_command):
+    git._get_branch('e14ebe0')
+    expected = [
+        mocker.call(
+            sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
+        mocker.call(
+            sh.git.bake('fetch'), debug=False),
+        mocker.call(
+            sh.git.bake('checkout', 'e14ebe0'), debug=False),
+    ]
+
+    assert expected == patched_run_command.mock_calls
+
+
+def test_get_branch_handles_int_sha(mocker, patched_run_command):
+    git._get_branch(1234567)
+    expected = [
+        mocker.call(
+            sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
+        mocker.call(
+            sh.git.bake('fetch'), debug=False),
+        mocker.call(
+            sh.git.bake('checkout', '1234567'), debug=False),
+    ]
+
+    assert expected == patched_run_command.mock_calls
