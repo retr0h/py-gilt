@@ -53,6 +53,92 @@ def test_config(gilt_config_file):
     assert ('library', '') == os_split(f.dst)[-2:]
 
 
+@pytest.fixture()
+def missing_git_key_data():
+    return [{'foo': 'https://github.com/retr0h/ansible-etcd.git'}]
+
+
+@pytest.mark.parametrize(
+    'gilt_config_file', ['missing_git_key_data'],
+    indirect=['gilt_config_file'])
+def test_config_missing_git_key(gilt_config_file):
+    with pytest.raises(KeyError):
+        config.config(gilt_config_file)
+
+
+@pytest.fixture()
+def missing_version_key_data():
+    return [{
+        'git': 'https://github.com/retr0h/ansible-etcd.git',
+        'foo': 'master'
+    }]
+
+
+@pytest.mark.parametrize(
+    'gilt_config_file', ['missing_version_key_data'],
+    indirect=['gilt_config_file'])
+def test_config_missing_version_key(gilt_config_file):
+    with pytest.raises(KeyError):
+        config.config(gilt_config_file)
+
+
+@pytest.fixture()
+def missing_dst_key_data():
+    return [{
+        'git': 'https://github.com/retr0h/ansible-etcd.git',
+        'version': 'master',
+        'foo': 'roles/retr0h.ansible-etcd/'
+    }]
+
+
+@pytest.mark.parametrize(
+    'gilt_config_file', ['missing_dst_key_data'],
+    indirect=['gilt_config_file'])
+def test_config_missing_dst_key(gilt_config_file):
+    with pytest.raises(KeyError):
+        config.config(gilt_config_file)
+
+
+@pytest.fixture()
+def missing_files_src_key_data():
+    return [{
+        'git': 'https://github.com/lorin/openstack-ansible-modules.git',
+        'version': 'master',
+        'files': [{
+            'foo': '*_manage',
+            'dst': 'library/'
+        }]
+    }]
+
+
+@pytest.mark.parametrize(
+    'gilt_config_file', ['missing_files_src_key_data'],
+    indirect=['gilt_config_file'])
+def test_config_missing_files_src_key(gilt_config_file):
+    with pytest.raises(KeyError):
+        config.config(gilt_config_file)
+
+
+@pytest.fixture()
+def missing_files_dst_key_data():
+    return [{
+        'git': 'https://github.com/lorin/openstack-ansible-modules.git',
+        'version': 'master',
+        'files': [{
+            'src': '*_manage',
+            'foo': 'library/'
+        }]
+    }]
+
+
+@pytest.mark.parametrize(
+    'gilt_config_file', ['missing_files_dst_key_data'],
+    indirect=['gilt_config_file'])
+def test_config_missing_files_dst_key(gilt_config_file):
+    with pytest.raises(KeyError):
+        config.config(gilt_config_file)
+
+
 @pytest.mark.parametrize(
     'gilt_config_file', ['gilt_data'], indirect=['gilt_config_file'])
 def test_get_config_generator(gilt_config_file):
@@ -63,7 +149,7 @@ def test_get_config_generator(gilt_config_file):
 
 
 def test_get_files_generator(temp_dir):
-    files_list = [{'src': 'foo', 'dest': 'bar'}]
+    files_list = [{'src': 'foo', 'dst': 'bar'}]
     result = [i for i in config._get_files_generator('/tmp/dir', files_list)]
 
     assert isinstance(result, list)
@@ -93,15 +179,9 @@ def test_get_config_handles_parse_error(gilt_config_file):
 
 def test_get_dst_dir(temp_dir):
     os.chdir(temp_dir.strpath)
-    result = config._get_dst_dir({'dst': 'role/foo'})
+    result = config._get_dst_dir('role/foo')
 
     assert os.path.join(temp_dir.strpath, 'role', 'foo') == result
-
-
-def test_get_dst_dir_with_missing_dst(temp_dir):
-    result = config._get_dst_dir({'foo': 'bar'})
-
-    assert result is None
 
 
 def test_get_clone_dir():

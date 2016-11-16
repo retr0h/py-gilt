@@ -69,16 +69,21 @@ def _get_config_generator(filename):
     :return: dict
     """
     for d in _get_config(filename):
-        parsedrepo = giturlparse.parse(d.get('git'), False)
+        repo = d['git']
+        parsedrepo = giturlparse.parse(repo)
         name = '{}.{}'.format(parsedrepo.owner, parsedrepo.repo)
         src_dir = os.path.join(_get_clone_dir(), name)
+        files = d.get('files')
+        dst_dir = None
+        if not files:
+            dst_dir = _get_dst_dir(d['dst'])
         yield {
-            'git': d.get('git'),
-            'version': d.get('version'),
+            'git': repo,
+            'version': d['version'],
             'name': name,
             'src': src_dir,
-            'dst': _get_dst_dir(d),
-            'files': _get_files_config(src_dir, d.get('files'))
+            'dst': dst_dir,
+            'files': _get_files_config(src_dir, files)
         }
 
 
@@ -94,8 +99,8 @@ def _get_files_generator(src_dir, files_list):
     if files_list:
         for d in files_list:
             yield {
-                'src': os.path.join(src_dir, d.get('src')),
-                'dst': _get_dst_dir(d)
+                'src': os.path.join(src_dir, d['src']),
+                'dst': _get_dst_dir(d['dst'])
             }
 
 
@@ -114,17 +119,17 @@ def _get_config(filename):
             raise ParseError(msg)
 
 
-def _get_dst_dir(d):
+def _get_dst_dir(dst_dir):
     """
-    Prefix the provided dict's `dst` key with working directory and return a
-    dict.
+    Prefix the provided string with working directory and return a
+    str.
 
-    :param d: A config dict which contains a `dst` key.
+    :param dst_dir: A string to be prefixed with the working dir.
     :return: str
     """
     wd = os.getcwd()
-    if d.get('dst'):
-        return os.path.join(wd, d.get('dst'))
+
+    return os.path.join(wd, dst_dir)
 
 
 def _get_clone_dir():
