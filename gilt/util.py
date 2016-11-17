@@ -48,8 +48,10 @@ def run_command(cmd, debug=False):
     :param debug: An optional bool to toggle debug output.
     :return: None
     """
-    msg = '  COMMAND: {}'.format(cmd)
     if debug:
+        msg = '  PWD: {}'.format(os.getcwd())
+        print_warn(msg)
+        msg = '  COMMAND: {}'.format(cmd)
         print_warn(msg)
     cmd()
 

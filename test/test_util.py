@@ -49,12 +49,14 @@ def test_run_command(capsys):
     assert '' == result
 
 
-def test_run_command_with_debug(capsys):
+def test_run_command_with_debug(temp_dir, capsys):
     cmd = sh.git.bake(version=True)
     util.run_command(cmd, debug=True)
 
     result, _ = capsys.readouterr()
     x = 'COMMAND: {} --version'.format(sh.git)
+    assert x in result
+    x = 'PWD: {}'.format(temp_dir)
     assert x in result
 
 
