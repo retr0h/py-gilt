@@ -108,20 +108,20 @@ def _get_branch(version, debug=False):
     """
     Handle switching to the specified version and return None.
 
-    1. Clean the repository before we begin.
-    2. Fetch the origin.
-    3. Checkout the specified version.
+    1. Fetch the origin.
+    2. Checkout the specified version.
+    3. Clean the repository before we begin.
     4. Pull the origin when a branch; _not_ a commit id.
 
     :param version: A string containing the branch/tag/sha to be exported.
     :param debug: An optional bool to toggle debug output.
     :return: None
     """
-    cmd = sh.git.bake('clean', '-d', '-x', '-f')
-    util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('fetch')
     util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('checkout', version)
+    util.run_command(cmd, debug=debug)
+    cmd = sh.git.bake('clean', '-d', '-x', '-f')
     util.run_command(cmd, debug=debug)
     if not re.match(r'\b[0-9a-f]{7,40}\b', str(version)):
         cmd = sh.git.bake('pull', rebase=True, ff_only=True)
