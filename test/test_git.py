@@ -106,44 +106,40 @@ def patched_run_command(mocker):
 
 def test_get_branch(mocker, patched_run_command):
     git._get_branch('branch')
+    # yapf: disable
     expected = [
-        mocker.call(
-            sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
-        mocker.call(
-            sh.git.bake('fetch'), debug=False),
-        mocker.call(
-            sh.git.bake('checkout', 'branch'), debug=False),
-        mocker.call(
-            sh.git.bake(
-                'pull', rebase=True, ff_only=True), debug=False),
+        mocker.call(sh.git.bake('fetch'), debug=False),
+        mocker.call(sh.git.bake('checkout', 'branch'), debug=False),
+        mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
+        mocker.call(sh.git.bake('pull', rebase=True, ff_only=True),
+                    debug=False)
     ]
+    # yapf: enable
 
     assert expected == patched_run_command.mock_calls
 
 
 def test_get_branch_does_not_pull_on_sha(mocker, patched_run_command):
     git._get_branch('e14ebe0')
+    # yapf: disable
     expected = [
-        mocker.call(
-            sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
-        mocker.call(
-            sh.git.bake('fetch'), debug=False),
-        mocker.call(
-            sh.git.bake('checkout', 'e14ebe0'), debug=False),
+        mocker.call(sh.git.bake('fetch'), debug=False),
+        mocker.call(sh.git.bake('checkout', 'e14ebe0'), debug=False),
+        mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False)
     ]
+    # yapf: enable
 
     assert expected == patched_run_command.mock_calls
 
 
 def test_get_branch_handles_int_sha(mocker, patched_run_command):
     git._get_branch(1234567)
+    # yapf: disable
     expected = [
-        mocker.call(
-            sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
-        mocker.call(
-            sh.git.bake('fetch'), debug=False),
-        mocker.call(
-            sh.git.bake('checkout', '1234567'), debug=False),
+        mocker.call(sh.git.bake('fetch'), debug=False),
+        mocker.call(sh.git.bake('checkout', '1234567'), debug=False),
+        mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False)
     ]
+    # yapf: enable
 
     assert expected == patched_run_command.mock_calls
