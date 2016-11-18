@@ -99,6 +99,29 @@ def test_overlay(mocker, temp_dir):
     assert 2 == len(glob.glob('{}/*'.format(os.path.join(dst_dir, 'tests'))))
 
 
+@slow
+def test_overlay_existing_directory(mocker, temp_dir):
+    name = 'lorin.openstack-ansible-modules'
+    repo = 'https://github.com/lorin/openstack-ansible-modules.git'
+    branch = 'master'
+    clone_dir = os.path.join(temp_dir.strpath, name)
+    dst_dir = os.path.join(temp_dir.strpath, 'dst', '')
+
+    os.mkdir(clone_dir)
+    os.mkdir(dst_dir)
+    os.mkdir(os.path.join(dst_dir, 'tests'))
+
+    files = [
+        mocker.Mock(
+            src=os.path.join(clone_dir, 'tests'),
+            dst=os.path.join(dst_dir, 'tests'))
+    ]
+    git.clone(name, repo, clone_dir)
+    git.overlay(clone_dir, files, branch)
+
+    assert 2 == len(glob.glob('{}/*'.format(os.path.join(dst_dir, 'tests'))))
+
+
 @pytest.fixture()
 def patched_run_command(mocker):
     return mocker.patch('gilt.util.run_command')
