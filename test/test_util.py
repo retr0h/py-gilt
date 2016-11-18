@@ -22,6 +22,7 @@
 
 import os
 
+import pytest
 import sh
 
 from gilt import util
@@ -97,3 +98,8 @@ def test_copy_dir(temp_dir):
     util.copy(src_dir, d)
 
     assert os.path.exists(d)
+
+
+def test_copy_raises(temp_dir):
+    with pytest.raises(OSError):
+        util.copy('invalid-src', 'invalid-dst')
