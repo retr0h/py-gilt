@@ -191,7 +191,7 @@ def test_get_clone_dir():
     assert ('.gilt', 'clone') == parts[-2:]
 
 
-def test_makedir(temp_dir):
+def test_makedirs(temp_dir):
     config._makedirs('foo/')
 
     d = os.path.join(temp_dir.strpath, 'foo')
@@ -199,34 +199,34 @@ def test_makedir(temp_dir):
     assert '0755' == oct(os.lstat(d).st_mode & 0777)
 
 
-def test_makedir_nested_directory(temp_dir):
+def test_makedirs_nested_directory(temp_dir):
     config._makedirs('foo/bar/')
 
     d = os.path.join(temp_dir.strpath, 'foo', 'bar')
     assert os.path.isdir(d)
 
 
-def test_makedir_basedir(temp_dir):
+def test_makedirs_basedir(temp_dir):
     config._makedirs('foo/filename.py')
 
     d = os.path.join(temp_dir.strpath, 'foo')
     assert os.path.isdir(d)
 
 
-def test_makedir_nested_basedir(temp_dir):
+def test_makedirs_nested_basedir(temp_dir):
     config._makedirs('foo/bar/filename.py')
 
     d = os.path.join(temp_dir.strpath, 'foo', 'bar')
     assert os.path.isdir(d)
 
 
-def test_makedir_passes_if_exists(temp_dir):
+def test_makedirs_passes_if_exists(temp_dir):
     d = os.path.join(temp_dir.strpath, 'foo')
     os.mkdir(d)
 
     config._makedirs('foo/')
 
 
-def test_makedir_raises(temp_dir):
+def test_makedirs_raises(temp_dir):
     with pytest.raises(OSError):
         config._makedirs('')
