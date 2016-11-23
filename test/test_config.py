@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 import os
+import stat
 
 import pytest
 
@@ -149,7 +150,7 @@ def test_get_config_generator(gilt_config_file):
 
 
 def test_get_files_generator(temp_dir):
-    files_list = [{'src': 'foo', 'dst': 'bar'}]
+    files_list = [{'src': 'foo', 'dst': 'bar/'}]
     result = [i for i in config._get_files_generator('/tmp/dir', files_list)]
 
     assert isinstance(result, list)
@@ -179,12 +180,53 @@ def test_get_config_handles_parse_error(gilt_config_file):
 
 def test_get_dst_dir(temp_dir):
     os.chdir(temp_dir.strpath)
-    result = config._get_dst_dir('role/foo')
+    result = config._get_dst_dir('roles/foo')
 
-    assert os.path.join(temp_dir.strpath, 'role', 'foo') == result
+    assert os.path.join(temp_dir.strpath, 'roles', 'foo') == result
 
 
 def test_get_clone_dir():
     parts = pytest.helpers.os_split(config._get_clone_dir())
 
     assert ('.gilt', 'clone') == parts[-2:]
+
+
+def test_makedir(temp_dir):
+    config._makedirs('foo/')
+
+    d = os.path.join(temp_dir.strpath, 'foo')
+    assert os.path.isdir(d)
+    assert '0755' == oct(os.lstat(d).st_mode & 0777)
+
+
+def test_makedir_nested_directory(temp_dir):
+    config._makedirs('foo/bar/')
+
+    d = os.path.join(temp_dir.strpath, 'foo', 'bar')
+    assert os.path.isdir(d)
+
+
+def test_makedir_basedir(temp_dir):
+    config._makedirs('foo/filename.py')
+
+    d = os.path.join(temp_dir.strpath, 'foo')
+    assert os.path.isdir(d)
+
+
+def test_makedir_nested_basedir(temp_dir):
+    config._makedirs('foo/bar/filename.py')
+
+    d = os.path.join(temp_dir.strpath, 'foo', 'bar')
+    assert os.path.isdir(d)
+
+
+def test_makedir_passes_if_exists(temp_dir):
+    d = os.path.join(temp_dir.strpath, 'foo')
+    os.mkdir(d)
+
+    config._makedirs('foo/')
+
+
+def test_makedir_raises(temp_dir):
+    with pytest.raises(OSError):
+        config._makedirs('')

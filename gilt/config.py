@@ -21,6 +21,7 @@
 #  DEALINGS IN THE SOFTWARE.
 
 import collections
+import errno
 import os
 
 import giturlparse
@@ -128,6 +129,7 @@ def _get_dst_dir(dst_dir):
     :return: str
     """
     wd = os.getcwd()
+    _makedirs(dst_dir)
 
     return os.path.join(wd, dst_dir)
 
@@ -141,3 +143,21 @@ def _get_clone_dir():
     path = '~/.gilt/clone'
 
     return os.path.expanduser(path)
+
+
+def _makedirs(path):
+    """
+    Create a base directory of the provided path and return None.
+
+    :param path: A string containing a path to be deconstructed and basedir
+     created.
+    :return: None
+    """
+    dirname, _ = os.path.split(path)
+    try:
+        os.makedirs(dirname)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST:
+            pass
+        else:
+            raise
