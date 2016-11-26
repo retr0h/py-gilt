@@ -22,7 +22,7 @@ Overlay remote repositories and/or files into the destinations provided.
 Documentation
 =============
 
-https://metacloud.github.io/gilt/
+http://gilt.readthedocs.io/
 
 License
 =======
