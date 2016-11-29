@@ -93,6 +93,9 @@ Similar Tools
 .. toctree::
    :maxdepth: 3
 
+   contributing
+   changelog
+   authors
    autodoc
 
 Indices and tables
