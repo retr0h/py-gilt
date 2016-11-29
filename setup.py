@@ -20,6 +20,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import setuptools
+from setuptools import setup
 
-setuptools.setup(setup_requires=['pbr'], pbr=True)
+from pip.download import PipSession
+from pip.req import parse_requirements
+
+
+def reqs(path):
+    return [str(r.req) for r in parse_requirements(path, session=PipSession())]
+
+
+INSTALL_REQUIRES = reqs("requirements.txt")
+
+setup(
+    name='gilt',
+    version='0.1',
+    py_modules=['gilt'],
+    install_requires=INSTALL_REQUIRES,
+    entry_points='''
+        [console_scripts]
+        gilt=gilt.shell:main
+    ''', )

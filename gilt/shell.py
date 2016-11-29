@@ -23,6 +23,7 @@
 import os
 
 import click
+import fasteners
 
 import gilt
 from gilt import config
@@ -67,13 +68,14 @@ def overlay(ctx):  # pragma: no cover
     _setup(filename)
 
     for c in config.config(filename):
-        util.print_info('{}:'.format(c.name))
-        if not os.path.exists(c.src):
-            git.clone(c.name, c.git, c.src, debug=debug)
-        if c.dst:
-            git.extract(c.src, c.dst, c.version, debug=debug)
-        else:
-            git.overlay(c.src, c.files, c.version, debug=debug)
+        with fasteners.InterProcessLock(c.lock_file):
+            util.print_info('{}:'.format(c.name))
+            if not os.path.exists(c.src):
+                git.clone(c.name, c.git, c.src, debug=debug)
+            if c.dst:
+                git.extract(c.src, c.dst, c.version, debug=debug)
+            else:
+                git.overlay(c.src, c.files, c.version, debug=debug)
 
 
 def _setup(filename):
@@ -81,9 +83,10 @@ def _setup(filename):
         msg = 'Unable to find {}. Exiting.'.format(filename)
         raise NotFoundError(msg)
 
-    d = config._get_clone_dir()
-    if not os.path.exists(d):
-        os.makedirs(d)
+    working_dirs = [config._get_lock_dir(), config._get_clone_dir()]
+    for working_dir in working_dirs:
+        if not os.path.exists(working_dir):
+            os.makedirs(working_dir)
 
 
 cli.add_command(overlay)
