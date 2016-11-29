@@ -33,6 +33,9 @@ class ParseError(Exception):
     pass
 
 
+BASE_WORKING_DIR = '~/.gilt'
+
+
 def config(filename):
     """
     Construct `Config` object and return a list.
@@ -41,7 +44,8 @@ def config(filename):
     :return: list
     """
     Config = collections.namedtuple(
-        'Config', ['git', 'version', 'name', 'src', 'dst', 'files'])
+        'Config',
+        ['git', 'lock_file', 'version', 'name', 'src', 'dst', 'files'])
 
     return [Config(**d) for d in _get_config_generator(filename)]
 
@@ -80,6 +84,7 @@ def _get_config_generator(filename):
             dst_dir = _get_dst_dir(d['dst'])
         yield {
             'git': repo,
+            'lock_file': _get_lock_file(name),
             'version': d['version'],
             'name': name,
             'src': src_dir,
@@ -134,15 +139,38 @@ def _get_dst_dir(dst_dir):
     return os.path.join(wd, dst_dir)
 
 
+def _get_lock_file(name):
+    """ Return the lock file for the given name. """
+    return os.path.join(
+        _get_lock_dir(),
+        name, )
+
+
+def _get_base_dir():
+    """ Return gilt's base working directory. """
+    return os.path.expanduser(BASE_WORKING_DIR)
+
+
+def _get_lock_dir():
+    """
+    Construct gilt's lock directory and return a str.
+
+    :return: str
+    """
+    return os.path.join(
+        _get_base_dir(),
+        'lock', )
+
+
 def _get_clone_dir():
     """
     Construct gilt's clone directory and return a str.
 
     :return: str
     """
-    path = '~/.gilt/clone'
-
-    return os.path.expanduser(path)
+    return os.path.join(
+        _get_base_dir(),
+        'clone', )
 
 
 def _makedirs(path):

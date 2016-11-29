@@ -1,5 +1,6 @@
 click
 colorama
+fasteners
 giturlparse.py
 pbr
 PyYAML
