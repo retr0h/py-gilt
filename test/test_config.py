@@ -21,7 +21,6 @@
 # THE SOFTWARE.
 
 import os
-import stat
 
 import pytest
 

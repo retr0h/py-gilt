@@ -140,14 +140,14 @@ def _get_dst_dir(dst_dir):
 
 
 def _get_lock_file(name):
-    """Return the lock file for the given name."""
+    """ Return the lock file for the given name. """
     return os.path.join(
         _get_lock_dir(),
         name, )
 
 
 def _get_base_dir():
-    """Return gilt's base working directory."""
+    """ Return gilt's base working directory. """
     return os.path.expanduser(BASE_WORKING_DIR)
 
 
