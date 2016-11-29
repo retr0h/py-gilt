@@ -7,11 +7,17 @@ gilt - A GIT layering tool.
 Quick Start
 ===========
 
-Overlay a remote repository into the destination provided.
+Install gilt using pip:
 
 .. code-block:: bash
 
-  $ gilt overlay
+  $ pip install gilt-python
+
+Overlay remote repositories and/or files into the destinations provided.
+
+.. code-block:: bash
+
+  $ gilt --debug overlay
 
 Documentation
 =============

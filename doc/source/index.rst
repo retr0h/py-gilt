@@ -17,7 +17,7 @@ Overlay a remote repository into the destination provided.
   $ gilt overlay
 
 
-Overlay files from a remote repository into the destination(s) provided.
+Overlay files from a remote repository into the destinations provided.
 
 .. code-block:: yaml
   :caption: gilt.yml
@@ -36,7 +36,7 @@ Overlay files from a remote repository into the destination(s) provided.
 
   $ gilt overlay
 
-Overlay directories from a remote repository into the destination(s) provided.
+Overlay a directory from a remote repository into the destination provided.
 
 .. code-block:: yaml
   :caption: gilt.yml
@@ -63,18 +63,26 @@ Use an alternate config file (default `gilt.yml`).
 
   $ gilt --config /path/to/gilt.yml overlay
 
-Integration
-===========
+Molecule
+========
 
-Integration with `Molecule`_ underway, as an `Ansible Galaxy`_ CLI replacement.
+Integrates with `Molecule`_ as an `Ansible Galaxy`_ CLI replacement.  Update
+`molecule.yml` with the following.
+
+.. code-block:: yaml
+
+  ---
+  dependency:
+    name: shell
+    command: gilt overlay
 
 Testing
 =======
 
-::
+.. code-block:: bash
 
-    $ pip install tox
-    $ tox
+  $ pip install tox
+  $ tox
 
 Similar Tools
 =============
