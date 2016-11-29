@@ -2,6 +2,14 @@
 gilt
 ****
 
+.. image:: https://badge.fury.io/py/gilt-python.svg
+   :target: https://badge.fury.io/py/gilt-python
+   :alt: PyPI Package
+
+.. image:: https://readthedocs.org/projects/gilt/badge/?version=latest
+   :target: https://gilt.readthedocs.io/en/latest/
+   :alt: Documentation Status
+
 gilt - A GIT layering tool.
 
 Quick Start
