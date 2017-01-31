@@ -36,11 +36,6 @@ class NotFoundError(Exception):
     pass
 
 
-def main():
-    """ gilt - A GIT layering tool. """
-    cli(obj={})
-
-
 @click.group()
 @click.option(
     '--config',
@@ -52,7 +47,9 @@ def main():
     help='Enable or disable debug mode. Default is disabled.')
 @click.version_option(version=gilt.__version__)
 @click.pass_context
-def cli(ctx, config, debug):  # pragma: no cover
+def main(ctx, config, debug):  # pragma: no cover
+    """ gilt - A GIT layering tool. """
+    ctx.obj = {}
     ctx.obj['args'] = {}
     ctx.obj['args']['debug'] = debug
     ctx.obj['args']['config'] = config
@@ -89,4 +86,4 @@ def _setup(filename):
             os.makedirs(working_dir)
 
 
-cli.add_command(overlay)
+main.add_command(overlay)
