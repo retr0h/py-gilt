@@ -87,7 +87,6 @@ Testing
 Similar Tools
 =============
 
-* `Reponimous`_
 * `Ansible Galaxy`_
 
 .. toctree::
@@ -107,4 +106,3 @@ Indices and tables
 
 .. _`Ansible Galaxy`: http://docs.ansible.com/ansible/galaxy.html#the-command-line-tool
 .. _`Molecule`: http://molecule.readthedocs.io
-.. _`Reponimous`: http://github.com/craigtracey/reponimous
