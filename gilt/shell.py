@@ -23,12 +23,11 @@
 import os
 
 import click
-import fasteners
+from threading import Thread
 
 import gilt
 from gilt import config
 from gilt import git
-from gilt import util
 
 
 class NotFoundError(Exception):
@@ -64,15 +63,12 @@ def overlay(ctx):  # pragma: no cover
     debug = args.get('debug')
     _setup(filename)
 
+    overlay_threads = []
     for c in config.config(filename):
-        with fasteners.InterProcessLock(c.lock_file):
-            util.print_info('{}:'.format(c.name))
-            if not os.path.exists(c.src):
-                git.clone(c.name, c.git, c.src, debug=debug)
-            if c.dst:
-                git.extract(c.src, c.dst, c.version, debug=debug)
-            else:
-                git.overlay(c.src, c.files, c.version, debug=debug)
+        thread = Thread(target=git.do_overlay, args=[c, debug])
+        overlay_threads.append(thread)
+        thread.start()
+    [t.join for t in overlay_threads]
 
 
 def _setup(filename):

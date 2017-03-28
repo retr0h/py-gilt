@@ -26,20 +26,27 @@ import contextlib
 import errno
 import os
 import shutil
+import sys
+import threading
 
 import colorama
 
 colorama.init(autoreset=True)
+_lock = threading.Lock()
 
 
 def print_info(msg):
     """ Print the given message to STDOUT. """
-    print(msg)
+    with _lock:
+        print(msg)
+        sys.stdout.flush()
 
 
 def print_warn(msg):
     """ Print the given message to STDOUT in YELLOW. """
-    print('{}{}'.format(colorama.Fore.YELLOW, msg))
+    with _lock:
+        print('{}{}'.format(colorama.Fore.YELLOW, msg))
+        sys.stdout.flush()
 
 
 def run_command(cmd, debug=False):
