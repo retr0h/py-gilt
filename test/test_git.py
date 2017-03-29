@@ -145,8 +145,20 @@ def test_get_branch(mocker, patched_run_command):
     assert expected == patched_run_command.mock_calls
 
 
-def test_get_nonbranch(mocker, patched_run_command):
-    mocker.patch("gilt.git._is_branch").return_value = False
+@slow
+def test_is_branch(temp_dir):
+    name = 'retr0h.ansible-etcd'
+    repo = 'https://github.com/retr0h/ansible-etcd.git'
+    destination = os.path.join(temp_dir.strpath, name)
+    git.clone(name, repo, destination)
+    os.chdir(destination)
+    assert git._is_branch('master')
+    assert not git._is_branch('1.1')
+    assert not git._is_branch('888ef7b')
+
+
+def test_is_branch_nonbranch(mocker, patched_run_command):
+    mocker.patch('gilt.git._is_branch').return_value = False
     git._get_branch('nonbranch')
     # yapf: disable
     expected = [
@@ -157,15 +169,3 @@ def test_get_nonbranch(mocker, patched_run_command):
     # yapf: enable
 
     assert expected == patched_run_command.mock_calls
-
-
-@slow
-def test_is_branch(temp_dir):
-    name = 'retr0h.ansible-etcd'
-    repo = 'https://github.com/retr0h/ansible-etcd.git'
-    destination = os.path.join(temp_dir.strpath, name)
-    git.clone(name, repo, destination)
-    os.chdir(destination)
-    assert git._is_branch("master")
-    assert not git._is_branch("1.1")
-    assert not git._is_branch("888ef7b")
