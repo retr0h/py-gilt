@@ -134,6 +134,9 @@ def test_get_branch(mocker, patched_run_command):
         mocker.call(sh.git.bake('fetch'), debug=False),
         mocker.call(sh.git.bake('checkout', 'branch'), debug=False),
         mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
+        mocker.call(sh.git.bake(
+            'show-ref', '--verify', '--quiet', 'refs/heads/branch'),
+            debug=False),
         mocker.call(sh.git.bake('pull', rebase=True, ff_only=True),
                     debug=False)
     ]
@@ -142,25 +145,25 @@ def test_get_branch(mocker, patched_run_command):
     assert expected == patched_run_command.mock_calls
 
 
-def test_get_branch_does_not_pull_on_sha(mocker, patched_run_command):
-    git._get_branch('e14ebe0')
+@slow
+def test_is_branch(temp_dir):
+    name = 'retr0h.ansible-etcd'
+    repo = 'https://github.com/retr0h/ansible-etcd.git'
+    destination = os.path.join(temp_dir.strpath, name)
+    git.clone(name, repo, destination)
+    os.chdir(destination)
+    assert git._is_branch('master')
+    assert not git._is_branch('1.1')
+    assert not git._is_branch('888ef7b')
+
+
+def test_is_branch_nonbranch(mocker, patched_run_command):
+    mocker.patch('gilt.git._is_branch').return_value = False
+    git._get_branch('nonbranch')
     # yapf: disable
     expected = [
         mocker.call(sh.git.bake('fetch'), debug=False),
-        mocker.call(sh.git.bake('checkout', 'e14ebe0'), debug=False),
-        mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False)
-    ]
-    # yapf: enable
-
-    assert expected == patched_run_command.mock_calls
-
-
-def test_get_branch_handles_int_sha(mocker, patched_run_command):
-    git._get_branch(1234567)
-    # yapf: disable
-    expected = [
-        mocker.call(sh.git.bake('fetch'), debug=False),
-        mocker.call(sh.git.bake('checkout', '1234567'), debug=False),
+        mocker.call(sh.git.bake('checkout', 'nonbranch'), debug=False),
         mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False)
     ]
     # yapf: enable

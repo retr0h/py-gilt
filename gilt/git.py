@@ -22,7 +22,6 @@
 
 import glob
 import os
-import re
 import shutil
 
 import sh
@@ -123,6 +122,23 @@ def _get_branch(version, debug=False):
     util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('clean', '-d', '-x', '-f')
     util.run_command(cmd, debug=debug)
-    if not re.match(r'\b[0-9a-f]{7,40}\b', str(version)):
+    if _is_branch(version, debug):
         cmd = sh.git.bake('pull', rebase=True, ff_only=True)
         util.run_command(cmd, debug=debug)
+
+
+def _is_branch(version, debug=False):
+    """
+    Determine a version is a git branch name or not.
+
+    :param version: A string containing the branch/tag/sha to be exported.
+    :param debug: An optional bool to toggle debug output.
+    :return: bool
+    """
+    cmd = sh.git.bake('show-ref', '--verify', '--quiet',
+                      "refs/heads/{}".format(version))
+    try:
+        util.run_command(cmd, debug=debug)
+        return True
+    except sh.ErrorReturnCode:
+        return False
