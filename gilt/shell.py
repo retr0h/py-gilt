@@ -68,7 +68,7 @@ def overlay(ctx):  # pragma: no cover
         thread = Thread(target=git.do_overlay, args=[c, debug])
         overlay_threads.append(thread)
         thread.start()
-    [t.join for t in overlay_threads]
+    [t.join() for t in overlay_threads]
 
 
 def _setup(filename):
