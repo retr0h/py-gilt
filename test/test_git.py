@@ -127,16 +127,79 @@ def patched_run_command(mocker):
     return mocker.patch('gilt.util.run_command')
 
 
-def test_get_branch(mocker, patched_run_command):
-    git._get_branch('branch')
+def test_get_version_has_branch(mocker, patched_run_command):
+    mocker.patch('gilt.git._has_branch').return_value = True
+    mocker.patch('gilt.git._has_tag').return_value = False
+    mocker.patch('gilt.git._has_commit').return_value = False
+    git._get_version('branch')
+    # yapf: disable
+    expected = [
+        mocker.call(sh.git.bake('checkout', 'branch'), debug=False),
+        mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
+        mocker.call(sh.git.bake('pull', rebase=True, ff_only=True),
+                    debug=False)
+    ]
+    # yapf: enable
+
+    assert expected == patched_run_command.mock_calls
+
+
+def test_get_version_has_tag(mocker, patched_run_command):
+    mocker.patch('gilt.git._has_branch').return_value = False
+    mocker.patch('gilt.git._has_tag').return_value = True
+    mocker.patch('gilt.git._has_commit').return_value = False
+    git._get_version('tag_name')
+    # yapf: disable
+    expected = [
+        mocker.call(sh.git.bake('checkout', 'tag_name'), debug=False),
+        mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False)
+    ]
+    # yapf: enable
+
+    assert expected == patched_run_command.mock_calls
+
+
+def test_get_version_has_commit(mocker, patched_run_command):
+    mocker.patch('gilt.git._has_branch').return_value = False
+    mocker.patch('gilt.git._has_tag').return_value = False
+    mocker.patch('gilt.git._has_commit').return_value = True
+    git._get_version('commit_sha')
+    # yapf: disable
+    expected = [
+        mocker.call(sh.git.bake('checkout', 'commit_sha'), debug=False),
+        mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False)
+    ]
+    # yapf: enable
+
+    assert expected == patched_run_command.mock_calls
+
+
+def test_get_version_needs_fetch(mocker, patched_run_command):
+    mocker.patch('gilt.git._has_branch').return_value = False
+    mocker.patch('gilt.git._has_tag').return_value = False
+    mocker.patch('gilt.git._has_commit').return_value = False
+    git._get_version('remote_tag')
     # yapf: disable
     expected = [
         mocker.call(sh.git.bake('fetch'), debug=False),
-        mocker.call(sh.git.bake('checkout', 'branch'), debug=False),
+        mocker.call(sh.git.bake('checkout', 'remote_tag'), debug=False),
+        mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False)
+    ]
+    # yapf: enable
+
+    assert expected == patched_run_command.mock_calls
+
+
+def test_get_version_needs_pull(mocker, patched_run_command):
+    mocker.patch('gilt.git._has_branch').side_effect = [False, True]
+    mocker.patch('gilt.git._has_tag').return_value = False
+    mocker.patch('gilt.git._has_commit').return_value = False
+    git._get_version('remote_branch')
+    # yapf: disable
+    expected = [
+        mocker.call(sh.git.bake('fetch'), debug=False),
+        mocker.call(sh.git.bake('checkout', 'remote_branch'), debug=False),
         mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False),
-        mocker.call(sh.git.bake(
-            'show-ref', '--verify', '--quiet', 'refs/heads/branch'),
-            debug=False),
         mocker.call(sh.git.bake('pull', rebase=True, ff_only=True),
                     debug=False)
     ]
@@ -146,26 +209,23 @@ def test_get_branch(mocker, patched_run_command):
 
 
 @slow
-def test_is_branch(temp_dir):
+def test_has_version(temp_dir):
     name = 'retr0h.ansible-etcd'
     repo = 'https://github.com/retr0h/ansible-etcd.git'
     destination = os.path.join(temp_dir.strpath, name)
     git.clone(name, repo, destination)
     os.chdir(destination)
-    assert git._is_branch('master')
-    assert not git._is_branch('1.1')
-    assert not git._is_branch('888ef7b')
+    # _has_branch tests
+    assert git._has_branch('master')
+    assert not git._has_branch('1.1')
+    assert not git._has_branch('888ef7b')
 
+    # _has_tag tests
+    assert not git._has_tag('master')
+    assert git._has_tag('1.1')
+    assert not git._has_tag('888ef7b')
 
-def test_is_branch_nonbranch(mocker, patched_run_command):
-    mocker.patch('gilt.git._is_branch').return_value = False
-    git._get_branch('nonbranch')
-    # yapf: disable
-    expected = [
-        mocker.call(sh.git.bake('fetch'), debug=False),
-        mocker.call(sh.git.bake('checkout', 'nonbranch'), debug=False),
-        mocker.call(sh.git.bake('clean', '-d', '-x', '-f'), debug=False)
-    ]
-    # yapf: enable
-
-    assert expected == patched_run_command.mock_calls
+    # _has_commit tests
+    assert not git._has_commit('master')
+    assert not git._has_commit('1.1')
+    assert git._has_commit('888ef7b')
