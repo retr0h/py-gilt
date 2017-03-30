@@ -20,6 +20,8 @@
 #  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #  DEALINGS IN THE SOFTWARE.
 
+from __future__ import print_function
+
 import contextlib
 import errno
 import os
@@ -32,12 +34,12 @@ colorama.init(autoreset=True)
 
 def print_info(msg):
     """ Print the given message to STDOUT. """
-    print msg
+    print(msg)
 
 
 def print_warn(msg):
     """ Print the given message to STDOUT in YELLOW. """
-    print '{}{}'.format(colorama.Fore.YELLOW, msg)
+    print('{}{}'.format(colorama.Fore.YELLOW, msg))
 
 
 def run_command(cmd, debug=False):
