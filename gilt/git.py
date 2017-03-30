@@ -62,7 +62,7 @@ def extract(repository, destination, version, debug=False):
     """
     with util.saved_cwd():
         os.chdir(repository)
-        _get_branch(version, debug)
+        _get_version(version, debug)
         cmd = sh.git.bake(
             'checkout-index', force=True, all=True, prefix=destination)
         util.run_command(cmd, debug=debug)
@@ -85,7 +85,7 @@ def overlay(repository, files, version, debug=False):
     """
     with util.saved_cwd():
         os.chdir(repository)
-        _get_branch(version, debug)
+        _get_version(version, debug)
 
         for fc in files:
             if '*' in fc.src:
@@ -103,7 +103,7 @@ def overlay(repository, files, version, debug=False):
                 util.print_info(msg)
 
 
-def _get_branch(version, debug=False):
+def _get_version(version, debug=False):
     """
     Handle switching to the specified version and return None.
 
@@ -116,22 +116,59 @@ def _get_branch(version, debug=False):
     :param debug: An optional bool to toggle debug output.
     :return: None
     """
-    cmd = sh.git.bake('fetch')
-    util.run_command(cmd, debug=debug)
+    if not any((_has_branch(version, debug), _has_tag(version, debug),
+                _has_commit(version, debug))):
+        cmd = sh.git.bake('fetch')
+        util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('checkout', version)
     util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('clean', '-d', '-x', '-f')
     util.run_command(cmd, debug=debug)
-    if _is_branch(version, debug):
+    if _has_branch(version, debug):
         cmd = sh.git.bake('pull', rebase=True, ff_only=True)
         util.run_command(cmd, debug=debug)
 
 
-def _is_branch(version, debug=False):
+def _has_commit(version, debug=False):
     """
-    Determine a version is a git branch name or not.
+    Determine a version is a local git commit sha or not.
 
-    :param version: A string containing the branch/tag/sha to be exported.
+    :param version: A string containing the branch/tag/sha to be determined.
+    :param debug: An optional bool to toggle debug output.
+    :return: bool
+    """
+    if _has_tag(version, debug) or _has_branch(version, debug):
+        return False
+    cmd = sh.git.bake('cat-file', '-e', version)
+    try:
+        util.run_command(cmd, debug=debug)
+        return True
+    except sh.ErrorReturnCode:
+        return False
+
+
+def _has_tag(version, debug=False):
+    """
+    Determine a version is a local git tag name or not.
+
+    :param version: A string containing the branch/tag/sha to be determined.
+    :param debug: An optional bool to toggle debug output.
+    :return: bool
+    """
+    cmd = sh.git.bake('show-ref', '--verify', '--quiet',
+                      "refs/tags/{}".format(version))
+    try:
+        util.run_command(cmd, debug=debug)
+        return True
+    except sh.ErrorReturnCode:
+        return False
+
+
+def _has_branch(version, debug=False):
+    """
+    Determine a version is a local git branch name or not.
+
+    :param version: A string containing the branch/tag/sha to be determined.
     :param debug: An optional bool to toggle debug output.
     :return: bool
     """
