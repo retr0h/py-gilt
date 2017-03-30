@@ -43,9 +43,9 @@ def config(filename):
     :parse filename: A string containing the path to YAML file.
     :return: list
     """
-    Config = collections.namedtuple(
-        'Config',
-        ['git', 'lock_file', 'version', 'name', 'src', 'dst', 'files'])
+    Config = collections.namedtuple('Config', [
+        'git', 'lock_file', 'version', 'name', 'src', 'dst', 'files'
+    ])
 
     return [Config(**d) for d in _get_config_generator(filename)]
 

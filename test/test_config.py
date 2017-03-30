@@ -38,8 +38,8 @@ def test_config(gilt_config_file):
     assert 'master' == r.version
     assert 'retr0h.ansible-etcd' == r.name
     assert ('.gilt', 'clone', 'retr0h.ansible-etcd') == os_split(r.src)[-3:]
-    assert ('.gilt', 'lock', 'retr0h.ansible-etcd'
-            ) == os_split(r.lock_file)[-3:]
+    assert ('.gilt', 'lock',
+            'retr0h.ansible-etcd') == os_split(r.lock_file)[-3:]
     assert ('roles', 'retr0h.ansible-etcd', '') == os_split(r.dst)[-3:]
     assert [] == r.files
 

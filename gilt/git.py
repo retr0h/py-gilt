@@ -91,15 +91,15 @@ def overlay(repository, files, version, debug=False):
             if '*' in fc.src:
                 for filename in glob.glob(fc.src):
                     util.copy(filename, fc.dst)
-                    msg = '  - copied ({}) {} to {}'.format(version, filename,
-                                                            fc.dst)
+                    msg = '  - copied ({}) {} to {}'.format(
+                        version, filename, fc.dst)
                     util.print_info(msg)
             else:
                 if os.path.isdir(fc.dst) and os.path.isdir(fc.src):
                     shutil.rmtree(fc.dst)
                 util.copy(fc.src, fc.dst)
-                msg = '  - copied ({}) {} to {}'.format(version, fc.src,
-                                                        fc.dst)
+                msg = '  - copied ({}) {} to {}'.format(
+                    version, fc.src, fc.dst)
                 util.print_info(msg)
 
 
@@ -116,8 +116,9 @@ def _get_version(version, debug=False):
     :param debug: An optional bool to toggle debug output.
     :return: None
     """
-    if not any((_has_branch(version, debug), _has_tag(version, debug),
-                _has_commit(version, debug))):
+    if not any(
+        (_has_branch(version, debug), _has_tag(version, debug), _has_commit(
+            version, debug))):
         cmd = sh.git.bake('fetch')
         util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('checkout', version)
