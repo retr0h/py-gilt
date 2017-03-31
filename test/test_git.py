@@ -159,6 +159,30 @@ def test_get_version_has_tag(mocker, patched_run_command):
     assert expected == patched_run_command.mock_calls
 
 
+def test_get_version_with_env(mocker, patched_run_command):
+    git_env = {"foo", "bar"}
+    git._get_version('branch', env=git_env)
+    # yapf: disable
+    expected = [
+        mocker.call(sh.git.bake('show-ref', '--verify', '--quiet',
+                                'refs/heads/branch', _env=git_env),
+                    debug=False),
+        mocker.call(sh.git.bake('checkout', 'branch', _env=git_env),
+                    debug=False),
+        mocker.call(sh.git.bake('clean', '-d', '-x', '-f', _env=git_env),
+                    debug=False),
+        mocker.call(sh.git.bake('show-ref', '--verify', '--quiet',
+                                'refs/heads/branch', _env=git_env),
+                    debug=False),
+        mocker.call(sh.git.bake('pull', rebase=True, ff_only=True,
+                                _env=git_env),
+                    debug=False)
+    ]
+    # yapf: enable
+
+    assert expected == patched_run_command.mock_calls
+
+
 def test_get_version_has_commit(mocker, patched_run_command):
     mocker.patch('gilt.git._has_branch').return_value = False
     mocker.patch('gilt.git._has_tag').return_value = False
@@ -214,18 +238,92 @@ def test_has_version(temp_dir):
     repo = 'https://github.com/retr0h/ansible-etcd.git'
     destination = os.path.join(temp_dir.strpath, name)
     git.clone(name, repo, destination)
-    os.chdir(destination)
+    git_env = {
+        "GIT_WORK_TREE": destination,
+        "GIT_DIR": os.path.join(destination, ".git"),
+        "GIT_OBJECT_DIRECTORY": os.path.join(destination, ".git", "objects")
+    }
     # _has_branch tests
-    assert git._has_branch('master')
-    assert not git._has_branch('1.1')
-    assert not git._has_branch('888ef7b')
+    assert git._has_branch('master', env=git_env)
+    assert not git._has_branch('1.1', env=git_env)
+    assert not git._has_branch('888ef7b', env=git_env)
 
     # _has_tag tests
-    assert not git._has_tag('master')
-    assert git._has_tag('1.1')
-    assert not git._has_tag('888ef7b')
+    assert not git._has_tag('master', env=git_env)
+    assert git._has_tag('1.1', env=git_env)
+    assert not git._has_tag('888ef7b', env=git_env)
 
     # _has_commit tests
-    assert not git._has_commit('master')
-    assert not git._has_commit('1.1')
-    assert git._has_commit('888ef7b')
+    assert not git._has_commit('master', env=git_env)
+    assert not git._has_commit('1.1', env=git_env)
+    assert git._has_commit('888ef7b', env=git_env)
+
+
+def test_git_env():
+    result = git._git_env("temp_dir")
+
+    assert result == {
+        "GIT_WORK_TREE": "temp_dir",
+        "GIT_DIR": os.path.join("temp_dir", ".git"),
+        "GIT_OBJECT_DIRECTORY": os.path.join("temp_dir", ".git", "objects")
+    }
+
+
+def test_do_overlay_with_clone_extract(mocker, tmpdir):
+    clone = mocker.patch("gilt.git.clone")
+    extract = mocker.patch("gilt.git.extract")
+    overlay = mocker.patch("gilt.git.overlay")
+    config = mocker.MagicMock()
+    config.dst = "dest_dir"
+    mocker.patch("fasteners.InterProcessLock").return_value = \
+        mocker.MagicMock()
+    mocker.patch("os.path.exists").return_value = False
+    git.do_overlay(config)
+    clone.assert_called_once()
+    extract.assert_called_once()
+    overlay.assert_not_called()
+
+
+def test_do_overlay_with_clone_overlay(mocker, tmpdir):
+    clone = mocker.patch("gilt.git.clone")
+    extract = mocker.patch("gilt.git.extract")
+    overlay = mocker.patch("gilt.git.overlay")
+    config = mocker.MagicMock()
+    config.dst = ""
+    mocker.patch("fasteners.InterProcessLock").return_value = \
+        mocker.MagicMock()
+    mocker.patch("os.path.exists").return_value = False
+    git.do_overlay(config)
+    clone.assert_called_once()
+    extract.assert_not_called()
+    overlay.assert_called_once()
+
+
+def test_do_overlay_with_noclone_extract(mocker, tmpdir):
+    clone = mocker.patch("gilt.git.clone")
+    extract = mocker.patch("gilt.git.extract")
+    overlay = mocker.patch("gilt.git.overlay")
+    config = mocker.MagicMock()
+    config.dst = "dest_dir"
+    mocker.patch("fasteners.InterProcessLock").return_value = \
+        mocker.MagicMock()
+    mocker.patch("os.path.exists").return_value = True
+    git.do_overlay(config)
+    clone.assert_not_called()
+    extract.assert_called_once()
+    overlay.assert_not_called()
+
+
+def test_do_overlay_with_noclone_overlay(mocker, tmpdir):
+    clone = mocker.patch("gilt.git.clone")
+    extract = mocker.patch("gilt.git.extract")
+    overlay = mocker.patch("gilt.git.overlay")
+    config = mocker.MagicMock()
+    config.dst = ""
+    mocker.patch("fasteners.InterProcessLock").return_value = \
+        mocker.MagicMock()
+    mocker.patch("os.path.exists").return_value = True
+    git.do_overlay(config)
+    clone.assert_not_called()
+    extract.assert_not_called()
+    overlay.assert_called_once()
