@@ -197,7 +197,9 @@ def test_makedirs(temp_dir):
 
     d = os.path.join(temp_dir.strpath, 'foo')
     assert os.path.isdir(d)
-    assert '0755' == oct(os.lstat(d).st_mode & 0777)
+
+    expected = (7 * 64 + 5 * 8 + 5)  # Octal 755
+    assert expected == (os.lstat(d).st_mode & 0o777)
 
 
 def test_makedirs_nested_directory(temp_dir):
