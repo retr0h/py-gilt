@@ -103,3 +103,20 @@ def test_copy_dir(temp_dir):
 def test_copy_raises(temp_dir):
     with pytest.raises(OSError):
         util.copy('invalid-src', 'invalid-dst')
+
+
+def test_build_sh_cmd_simple_command():
+    cmd = util.build_sh_cmd('ls')
+    assert '/bin/ls' == cmd._path
+
+
+def test_build_sh_cmd_command_with_args():
+    cmd = util.build_sh_cmd('ls /tmp')
+    assert '/bin/ls' == cmd._path
+    assert ['/tmp'] == cmd._partial_baked_args
+
+
+def test_build_sh_cmd_command_with_cwd(temp_dir):
+    cmd = util.build_sh_cmd('ls', cwd=temp_dir)
+    assert '/bin/ls' == cmd._path
+    assert temp_dir == cmd._partial_call_args['cwd']

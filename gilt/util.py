@@ -25,6 +25,7 @@ from __future__ import print_function
 import contextlib
 import errno
 import os
+import sh
 import shutil
 
 import colorama
@@ -56,6 +57,17 @@ def run_command(cmd, debug=False):
         msg = '  COMMAND: {}'.format(cmd)
         print_warn(msg)
     cmd()
+
+
+def build_sh_cmd(cmd, cwd=None):
+    """Build a `sh.Command` from a string.
+
+    :param cmd: String with the command to convert.
+    :param cwd: Optional path to use as working directory.
+    :return: `sh.Command`
+    """
+    args = cmd.split()
+    return getattr(sh, args[0]).bake(_cwd=cwd, *args[1:])
 
 
 @contextlib.contextmanager
