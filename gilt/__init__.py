@@ -24,6 +24,6 @@ import pbr.version
 
 try:
     version_info = pbr.version.VersionInfo('gilt')
-    __version__ = pbr.version_info.release_string()
+    __version__ = version_info.release_string()
 except AttributeError:
     __version__ = None
