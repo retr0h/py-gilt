@@ -71,8 +71,20 @@ def overlay(ctx):  # pragma: no cover
                 git.clone(c.name, c.git, c.src, debug=debug)
             if c.dst:
                 git.extract(c.src, c.dst, c.version, debug=debug)
+                post_commands = {c.dst: c.post_commands}
             else:
                 git.overlay(c.src, c.files, c.version, debug=debug)
+                post_commands = {
+                    conf.dst: conf.post_commands
+                    for conf in c.files
+                }
+            # Run post commands if any.
+            for dst, commands in post_commands.items():
+                for command in commands:
+                    msg = '  - running `{}` in {}'.format(command, dst)
+                    util.print_info(msg)
+                    cmd = util.build_sh_cmd(command, cwd=dst)
+                    util.run_command(cmd, debug=debug)
 
 
 def _setup(filename):

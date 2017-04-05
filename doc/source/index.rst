@@ -51,6 +51,29 @@ Overlay a directory from a remote repository into the destination provided.
 
   $ gilt overlay
 
+Overlay files and a directory and run post-overlay commands.
+
+.. code-block:: yaml
+  :caption: gilt.yml
+
+  - git: https://github.com/example/subproject.git
+    version: master
+    files:
+      - src: subtool/test
+        dst: ext/subtool.test/
+        post_commands:
+          - make
+
+  - git: https://github.com/example/subtool2.git
+    version: master
+    dst: ext/subtool2/
+    post_commands:
+      - make
+
+.. code-block:: bash
+
+  $ gilt overlay
+
 Display the git commands being executed.
 
 .. code-block:: bash

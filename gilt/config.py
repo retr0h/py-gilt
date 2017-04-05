@@ -44,7 +44,14 @@ def config(filename):
     :return: list
     """
     Config = collections.namedtuple('Config', [
-        'git', 'lock_file', 'version', 'name', 'src', 'dst', 'files'
+        'git',
+        'lock_file',
+        'version',
+        'name',
+        'src',
+        'dst',
+        'files',
+        'post_commands',
     ])
 
     return [Config(**d) for d in _get_config_generator(filename)]
@@ -59,7 +66,8 @@ def _get_files_config(src_dir, files_list):
      to overlay.
     :return: list
     """
-    FilesConfig = collections.namedtuple('FilesConfig', ['src', 'dst'])
+    FilesConfig = collections.namedtuple('FilesConfig',
+                                         ['src', 'dst', 'post_commands'])
 
     return [
         FilesConfig(**d) for d in _get_files_generator(src_dir, files_list)
@@ -79,6 +87,7 @@ def _get_config_generator(filename):
         name = '{}.{}'.format(parsedrepo.owner, parsedrepo.repo)
         src_dir = os.path.join(_get_clone_dir(), name)
         files = d.get('files')
+        post_commands = d.get('post_commands', [])
         dst_dir = None
         if not files:
             dst_dir = _get_dst_dir(d['dst'])
@@ -89,7 +98,8 @@ def _get_config_generator(filename):
             'name': name,
             'src': src_dir,
             'dst': dst_dir,
-            'files': _get_files_config(src_dir, files)
+            'files': _get_files_config(src_dir, files),
+            'post_commands': post_commands,
         }
 
 
@@ -106,7 +116,8 @@ def _get_files_generator(src_dir, files_list):
         for d in files_list:
             yield {
                 'src': os.path.join(src_dir, d['src']),
-                'dst': _get_dst_dir(d['dst'])
+                'dst': _get_dst_dir(d['dst']),
+                'post_commands': d.get('post_commands', []),
             }
 
 
