@@ -26,15 +26,16 @@ class InvalidInterpolation(Exception):
 class Interpolator(object):
     """
     Configuration options may contain environment variables.  For example,
-    suppose the shell contains `VERIFIER_NAME=testinfra` and the following
-    molecule.yml is supplied.
+    suppose the shell contains `ETCD_VERSION=1.0` and the following
+    gilt.yml is supplied.
     .. code-block:: yaml
-        verifier:
-          - name: ${VERIFIER_NAME}
-    Molecule will substitute `$VERIFIER_NAME` with the value of the
-    `VERIFIER_NAME` environment variable.
+        - git: https://github.com/retr0h/ansible-etcd.git
+          version: ${ETCD_VERSION}
+          dst: roles/retr0h.ansible-etcd-${ETCD_VERSION}/
+       will substitute `${ETCD_VERSION}` with the value of the
+    `ETCD_VERSION` environment variable.
     .. warning::
-        If an environment variable is not set, Molecule substitutes with an
+        If an environment variable is not set, gilt substitutes with an
         empty string.
     Both `$VARIABLE` and `${VARIABLE}` syntax are supported. Extended
     shell-style features, such as `${VARIABLE-default}` and

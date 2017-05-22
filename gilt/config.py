@@ -26,7 +26,8 @@ import os
 
 import giturlparse
 import yaml
-import interpolation
+
+from gilt import interpolation
 
 
 class ParseError(Exception):
