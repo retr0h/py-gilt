@@ -5,7 +5,7 @@ Credits
 Development Leads
 =================
 
-* John Dewey (`@retr0h`_)
+* Anthony Rogliano (`@anthonysr-mc`_)
 
 Core Committers
 ===============
