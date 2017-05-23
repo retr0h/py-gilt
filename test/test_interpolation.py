@@ -71,7 +71,7 @@ def test_interpolate_with_empty_and_default_value(interpolator_instance):
     assert 'ok ' == interpolator_instance('ok ${BAR-def}')
 
 
-def test_interpolate_with_molecule_yaml(interpolator_instance):
+def test_interpolate_with_gilt_yaml(interpolator_instance):
     data = """
 ---
     git: git@github.com:retr0h/ansible-etcd.git
