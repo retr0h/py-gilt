@@ -27,6 +27,8 @@ import os
 import giturlparse
 import yaml
 
+from gilt import interpolation
+
 
 class ParseError(Exception):
     """ Error raised when a config can't be loaded properly. """
@@ -128,9 +130,13 @@ def _get_config(filename):
     :parse filename: A string containing the path to YAML file.
     :return: dict
     """
+    i = interpolation.Interpolator(interpolation.TemplateWithDefaults,
+                                   os.environ)
+
     with open(filename, 'r') as stream:
         try:
-            return yaml.safe_load(stream)
+            interpolated_config = i.interpolate(stream.read())
+            return yaml.safe_load(interpolated_config)
         except yaml.parser.ParserError as e:
             msg = 'Error parsing gilt config: {0}'.format(e)
             raise ParseError(msg)
