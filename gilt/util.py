@@ -25,10 +25,10 @@ from __future__ import print_function
 import contextlib
 import errno
 import os
-import sh
 import shutil
 
 import colorama
+import sh
 
 colorama.init(autoreset=True)
 
@@ -92,10 +92,35 @@ def copy(src, dst):
      destination ends with a '/', will copy into the target directory.
     :return: None
     """
-    try:
-        shutil.copytree(src, dst)
-    except OSError as exc:
-        if exc.errno == errno.ENOTDIR:
-            shutil.copy(src, dst)
+    if os.path.isdir(src) and os.path.isdir(dst):
+        mergetree(src, dst)
+    else:
+        try:
+            mergetree(src, dst)
+        except OSError as exc:
+            if exc.errno == errno.ENOTDIR:
+                shutil.copy(src, dst)
+            else:
+                raise
+
+
+def mergetree(src, dst, symlinks=False, ignore=None):
+    """
+    Merge two existing directories
+
+    :param src: A string containting the path of the source to copy
+    :param dst: A string containing the path to the destination
+    :return: None
+    """
+
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            mergetree(s, d, symlinks, ignore)
         else:
-            raise
+            if not os.path.exists(
+                    d) or os.stat(s).st_mtime - os.stat(d).st_mtime > 1:
+                shutil.copy2(s, d)

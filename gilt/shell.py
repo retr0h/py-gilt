@@ -24,11 +24,8 @@ import os
 
 import click
 import fasteners
-
 import gilt
-from gilt import config
-from gilt import git
-from gilt import util
+from gilt import config, git, util
 
 
 class NotFoundError(Exception):
@@ -45,14 +42,19 @@ class NotFoundError(Exception):
     '--debug/--no-debug',
     default=False,
     help='Enable or disable debug mode. Default is disabled.')
+@click.option(
+    '--keepdirs/--no-keepdirs',
+    default=True,
+    help='Do not remove directories before placing contents into them')
 @click.version_option(version=gilt.__version__)
 @click.pass_context
-def main(ctx, config, debug):  # pragma: no cover
+def main(ctx, config, keepdirs, debug):  # pragma: no cover
     """ gilt - A GIT layering tool. """
     ctx.obj = {}
     ctx.obj['args'] = {}
     ctx.obj['args']['debug'] = debug
     ctx.obj['args']['config'] = config
+    ctx.obj['args']['keepdirs'] = keepdirs
 
 
 @click.command()
@@ -62,6 +64,7 @@ def overlay(ctx):  # pragma: no cover
     args = ctx.obj.get('args')
     filename = args.get('config')
     debug = args.get('debug')
+    keepdirs = args.get('keepdirs')
     _setup(filename)
 
     for c in config.config(filename):
@@ -73,7 +76,8 @@ def overlay(ctx):  # pragma: no cover
                 git.extract(c.src, c.dst, c.version, debug=debug)
                 post_commands = {c.dst: c.post_commands}
             else:
-                git.overlay(c.src, c.files, c.version, debug=debug)
+                git.overlay(
+                    c.src, c.files, c.version, keepdirs=keepdirs, debug=debug)
                 post_commands = {
                     conf.dst: conf.post_commands
                     for conf in c.files

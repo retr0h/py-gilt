@@ -71,7 +71,7 @@ def extract(repository, destination, version, debug=False):
         util.print_info(msg)
 
 
-def overlay(repository, files, version, debug=False):
+def overlay(repository, files, version, keepdirs=False, debug=False):
     """
     Overlay files from the specified repository/version into the given
     directory and return None.
@@ -80,6 +80,7 @@ def overlay(repository, files, version, debug=False):
      extracted.
     :param files: A list of `FileConfig` objects.
     :param version: A string containing the branch/tag/sha to be exported.
+    :param keepdirs: An optional bool to not delete directories before replacing
     :param debug: An optional bool to toggle debug output.
     :return: None
     """
@@ -95,7 +96,7 @@ def overlay(repository, files, version, debug=False):
                         version, filename, fc.dst)
                     util.print_info(msg)
             else:
-                if os.path.isdir(fc.dst) and os.path.isdir(fc.src):
+                if os.path.isdir(fc.dst) and os.path.isdir(fc.src) and not keepdirs:
                     shutil.rmtree(fc.dst)
                 util.copy(fc.src, fc.dst)
                 msg = '  - copied ({}) {} to {}'.format(
