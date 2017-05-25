@@ -96,7 +96,7 @@ def copy(src, dst):
         mergetree(src, dst)
     else:
         try:
-            mergetree(src, dst)
+            shutil.copytree(src, dst)
         except OSError as exc:
             if exc.errno == errno.ENOTDIR:
                 shutil.copy(src, dst)
