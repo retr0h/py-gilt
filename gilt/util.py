@@ -92,16 +92,13 @@ def copy(src, dst):
      destination ends with a '/', will copy into the target directory.
     :return: None
     """
-    if os.path.isdir(src) and os.path.isdir(dst):
-        mergetree(src, dst)
-    else:
-        try:
-            shutil.copytree(src, dst)
-        except OSError as exc:
-            if exc.errno == errno.ENOTDIR:
-                shutil.copy(src, dst)
-            else:
-                raise
+    try:
+        shutil.copytree(src, dst)
+    except OSError as exc:
+        if exc.errno == errno.ENOTDIR:
+            shutil.copy(src, dst)
+        else:
+            raise
 
 
 def mergetree(src, dst, symlinks=False, ignore=None):

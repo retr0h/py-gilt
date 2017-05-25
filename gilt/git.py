@@ -25,7 +25,6 @@ import os
 import shutil
 
 import sh
-
 from gilt import util
 
 
@@ -96,9 +95,13 @@ def overlay(repository, files, version, keepdirs=False, debug=False):
                         version, filename, fc.dst)
                     util.print_info(msg)
             else:
-                if os.path.isdir(fc.dst) and os.path.isdir(fc.src) and not keepdirs:
-                    shutil.rmtree(fc.dst)
-                util.copy(fc.src, fc.dst)
+                if os.path.isdir(fc.dst) and os.path.isdir(
+                        fc.src) and keepdirs:
+                    util.mergetree(fc.src, fc.dst)
+                else:
+                    if os.path.isdir(fc.dst) and os.path.isdir(fc.src):
+                        shutil.rmtree(fc.dst)
+                    util.copy(fc.src, fc.dst)
                 msg = '  - copied ({}) {} to {}'.format(
                     version, fc.src, fc.dst)
                 util.print_info(msg)
