@@ -44,7 +44,7 @@ class NotFoundError(Exception):
     help='Enable or disable debug mode. Default is disabled.')
 @click.option(
     '--keepdirs/--no-keepdirs',
-    default=True,
+    default=False,
     help='Do not remove directories before placing contents into them')
 @click.version_option(version=gilt.__version__)
 @click.pass_context
