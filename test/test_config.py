@@ -49,6 +49,7 @@ def test_config(gilt_config_file):
     assert 'lorin.openstack-ansible-modules' == r.name
     assert 'lorin.openstack-ansible-modules' == os_split(r.src)[-1]
     assert r.dst is None
+
     f = r.files[0]
     x = ('.gilt', 'clone', 'lorin.openstack-ansible-modules', '*_manage')
     assert x == os_split(f.src)[-4:]
@@ -198,8 +199,11 @@ def test_makedirs(temp_dir):
     d = os.path.join(temp_dir.strpath, 'foo')
     assert os.path.isdir(d)
 
-    expected = (7 * 64 + 5 * 8 + 5)  # Octal 755
-    assert expected == (os.lstat(d).st_mode & 0o777)
+    curmask = os.umask(0)
+    os.umask(curmask)
+
+    expected = 0o777 & ~curmask
+    assert expected == (os.stat(d).st_mode & 0o777)
 
 
 def test_makedirs_nested_directory(temp_dir):
