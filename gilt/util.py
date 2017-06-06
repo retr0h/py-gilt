@@ -118,5 +118,5 @@ def mergetree(src, dst, symlinks=False, ignore=None):
         if os.path.isdir(s):
             mergetree(s, d, symlinks, ignore)
         else:
-            if not os.path.exists(d):
+            if os.path.exists(d):
                 shutil.copy2(s, d)
