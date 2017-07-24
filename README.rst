@@ -30,7 +30,7 @@ Overlay remote repositories and/or files into the destinations provided.
 Documentation
 =============
 
-http://gilt.readthedocs.io/
+https://gilt.readthedocs.io/
 
 License
 =======
