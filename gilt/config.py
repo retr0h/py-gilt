@@ -86,7 +86,7 @@ def _get_config_generator(filename):
     for d in _get_config(filename):
         repo = d['git']
         parsedrepo = giturlparse.parse(repo)
-        name = '{}.{}'.format(parsedrepo.owner, parsedrepo.repo)
+        name = '{}.{}'.format(parsedrepo.owner, parsedrepo.name)
         src_dir = os.path.join(_get_clone_dir(), name)
         files = d.get('files')
         post_commands = d.get('post_commands', [])
