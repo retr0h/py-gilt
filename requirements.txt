@@ -1,7 +1,7 @@
 click
 colorama
 fasteners
-giturlparse.py
+git-url-parse
 pbr
 PyYAML
 sh
