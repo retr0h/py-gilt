@@ -35,7 +35,9 @@ https://gilt.readthedocs.io/
 License
 =======
 
-MIT
+`MIT`_
+
+.. _`MIT`: https://github.com/metacloud/gilt/blob/master/LICENSE
 
 The logo is licensed under the `Creative Commons NoDerivatives 4.0 License`_.  If you have some other use in mind, contact us.
 
