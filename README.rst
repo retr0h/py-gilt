@@ -10,6 +10,10 @@ gilt
    :target: https://gilt.readthedocs.io/en/latest/
    :alt: Documentation Status
 
+.. image:: https://img.shields.io/badge/license-MIT-brightgreen.svg
+   :target: LICENSE
+   :alt: Repository License
+
 gilt - A GIT layering tool.
 
 Quick Start
