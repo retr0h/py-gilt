@@ -42,7 +42,7 @@ From the root for the project, run:
 
 .. code-block:: bash
 
-  $ tox -e syntax
+  $ tox -e format
 
 .. _`YAPF`: https://github.com/google/yapf
 .. _`Tox`: https://tox.readthedocs.io/en/latest
