@@ -22,8 +22,5 @@
 
 import pbr.version
 
-try:
-    version_info = pbr.version.VersionInfo('gilt')
-    __version__ = version_info.release_string()
-except AttributeError:
-    __version__ = None
+version_info = pbr.version.VersionInfo('gilt')  # noqa
+__version__ = version_info.release_string()
