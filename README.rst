@@ -23,13 +23,13 @@ Install gilt using pip:
 
 .. code-block:: bash
 
-  $ pip install python-gilt
+    $ pip install python-gilt
 
 Overlay remote repositories and/or files into the destinations provided.
 
 .. code-block:: bash
 
-  $ gilt --debug overlay
+    $ gilt --debug overlay
 
 Documentation
 =============

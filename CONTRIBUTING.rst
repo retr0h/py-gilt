@@ -22,7 +22,7 @@ Install the test framework `Tox`_.
 
 .. code-block:: bash
 
-  $ pip install tox
+    $ pip install tox
 
 Unit
 ----
@@ -31,7 +31,7 @@ Unit tests are invoked by `Tox`_.
 
 .. code-block:: bash
 
-  $ tox
+    $ tox
 
 Formatting
 ==========
@@ -42,7 +42,7 @@ From the root for the project, run:
 
 .. code-block:: bash
 
-  $ tox -e format
+    $ tox -e format
 
 .. _`YAPF`: https://github.com/google/yapf
 .. _`Tox`: https://tox.readthedocs.io/en/latest
