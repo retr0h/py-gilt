@@ -51,6 +51,12 @@ Overlay a directory from a remote repository into the destination provided.
 
   $ gilt overlay
 
+Optionally, override gilt's cache location (defaults to ~/.gilt):
+
+.. code-block:: bash
+
+  $ export GILT_CACHE_DIRECTORY=~/my-gilt-cache
+
 Overlay files and a directory and run post-overlay commands.
 
 .. code-block:: yaml
