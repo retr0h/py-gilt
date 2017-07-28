@@ -33,7 +33,7 @@ class ParseError(Exception):
     pass
 
 
-BASE_WORKING_DIR = '~/.gilt'
+BASE_WORKING_DIR = os.environ.get('GILT_CACHE_DIRECTORY', '~/.gilt')
 
 
 def config(filename):
