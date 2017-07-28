@@ -2,8 +2,8 @@
 gilt
 ****
 
-.. image:: https://badge.fury.io/py/gilt-python.svg
-   :target: https://badge.fury.io/py/gilt-python
+.. image:: https://badge.fury.io/py/python-gilt.svg
+   :target: https://badge.fury.io/py/python-gilt
    :alt: PyPI Package
 
 .. image:: https://readthedocs.org/projects/gilt/badge/?version=latest
@@ -23,7 +23,7 @@ Install gilt using pip:
 
 .. code-block:: bash
 
-  $ pip install gilt-python
+  $ pip install python-gilt
 
 Overlay remote repositories and/or files into the destinations provided.
 
