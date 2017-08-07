@@ -2,6 +2,11 @@
 History
 *******
 
+1.2
+===
+
+* Add option to override gilt's default cache dir.
+
 1.1
 ===
 
