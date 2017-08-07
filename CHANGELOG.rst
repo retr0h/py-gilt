@@ -2,6 +2,11 @@
 History
 *******
 
+1.2.1
+=====
+
+* Use proper package name for pbr.
+
 1.2
 ===
 
