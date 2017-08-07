@@ -105,13 +105,6 @@ Integrates with `Molecule`_ as an `Ansible Galaxy`_ CLI replacement.  Update
       name: shell
       command: gilt overlay
 
-Testing
-=======
-
-.. code-block:: bash
-
-    $ pip install tox
-    $ tox
 
 Similar Tools
 =============
@@ -121,7 +114,9 @@ Similar Tools
 .. toctree::
    :maxdepth: 3
 
+   testing
    contributing
+   development
    changelog
    authors
    autodoc
