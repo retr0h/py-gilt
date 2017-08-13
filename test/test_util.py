@@ -24,7 +24,6 @@ import os
 
 import pytest
 import sh
-
 from gilt import util
 
 
@@ -98,6 +97,23 @@ def test_copy_dir(temp_dir):
     util.copy(src_dir, d)
 
     assert os.path.exists(d)
+
+
+def test_merge_dir(temp_dir):
+    src_dir = os.path.join(temp_dir.strpath, 'src')
+    dst_dir = os.path.join(temp_dir.strpath, 'dst')
+
+    os.mkdir(src_dir)
+    os.mkdir(dst_dir)
+
+    d_file = os.path.join(dst_dir, 'foobar')
+    open(d_file, 'a').close()
+
+    d = os.path.join(dst_dir, 'src')
+    util.mergetree(src_dir, d)
+
+    assert os.path.exists(d)
+    assert os.path.exists(d_file)
 
 
 def test_copy_raises(temp_dir):

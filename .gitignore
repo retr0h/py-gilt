@@ -1,4 +1,5 @@
 *.egg-info/
+build/
 *.py[cod]
 .cache/
 .coverage
