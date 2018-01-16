@@ -1,0 +1,14 @@
+---
+sudo: falseo
+language: go
+go:
+  - 1.10.x
+git:
+  depth: 1
+install:
+  - go get golang.org/x/lint/golint
+  - go get github.com/mattn/goveralls
+script:
+  - make test
+  - make cover
+  - ${GOPATH}/bin/goveralls -coverprofile=coverage-all.out -service=travis-ci

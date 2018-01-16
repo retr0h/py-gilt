@@ -1,0 +1,23 @@
+# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# for detailed Gopkg.toml documentation.
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+
+[[constraint]]
+  name = "gopkg.in/src-d/go-git"
+
+[[constraint]]
+  name = "github.com/xeipuuv/gojsonschema"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+
+[[constraint]]
+  name = "github.com/ghodss/yaml"
+
+[[constraint]]
+  name = "github.com/kami-zh/go-capturer"
+
+[[constraint]]
+  name = "github.com/logrusorgru/aurora"

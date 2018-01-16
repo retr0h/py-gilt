@@ -1,7 +1,2 @@
-*.egg-info/
-*.py[cod]
-.cache/
-.coverage
-.eggs/
-.tox/
-doc/build/
+.build/
+coverage*
