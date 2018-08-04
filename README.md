@@ -10,7 +10,7 @@
 
 ## Usage
 
-Overlay a remote repository into the destination provided.
+Create the giltfile (`gilt.yml`).
 
 ```yaml
 ---
@@ -18,6 +18,8 @@ Overlay a remote repository into the destination provided.
   version: 77a95b7
   dst: roles/retr0h.ansible-etcd
 ```
+
+Overlay a remote repository into the destination provided.
 
 ```bash
 $ gilt overlay
@@ -40,6 +42,8 @@ Use an alternate config file (default `gilt.yml`).
 ```bash
 $ gilt overlay --filename /path/to/gilt.yml
 ```
+
+[![asciicast](https://asciinema.org/a/195036.png)](https://asciinema.org/a/195036?speed=2&autoplay=1&loop=1)
 
 ## Dependencies
 
