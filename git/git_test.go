@@ -21,10 +21,7 @@
 package git
 
 import (
-	"errors"
 	"fmt"
-	"os/exec"
-	"strings"
 	"testing"
 
 	"github.com/retr0h/go-gilt/repository"
@@ -59,33 +56,6 @@ func (suite *GitTestSuite) TearDownTest() {
 	testutil.RemoveTempDirectory(suite.r.GiltDir)
 }
 
-func (suite *GitTestSuite) mockRunCommand(f func()) []string {
-	var got []string
-
-	originalRunCommand := RunCommand
-	RunCommand = func(debug bool, name string, args ...string) error {
-		cmd := exec.Command(name, args...)
-		got = append(got, strings.Join(cmd.Args, " "))
-
-		return nil
-	}
-	defer func() { RunCommand = originalRunCommand }()
-
-	f()
-
-	return got
-}
-
-func (suite *GitTestSuite) mockRunCommandErrors(f func() error) {
-	originalRunCommand := RunCommand
-	RunCommand = func(debug bool, name string, args ...string) error {
-		return errors.New("RunCommand had an error")
-	}
-	defer func() { RunCommand = originalRunCommand }()
-
-	f()
-}
-
 func (suite *GitTestSuite) TestCloneReturnsError() {
 	anon := func() error {
 		err := suite.g.clone(suite.r)
@@ -94,13 +64,18 @@ func (suite *GitTestSuite) TestCloneReturnsError() {
 		return err
 	}
 
-	suite.mockRunCommandErrors(anon)
+	MockRunCommandErrorsOn("git", anon)
 }
 
 func (suite *GitTestSuite) TestClone() {
-	anon := func() { suite.g.clone(suite.r) }
+	anon := func() error {
+		err := suite.g.clone(suite.r)
+		assert.NoError(suite.T(), err)
 
-	got := suite.mockRunCommand(anon)
+		return err
+	}
+
+	got := MockRunCommand(anon)
 	want := []string{
 		fmt.Sprintf("git clone https://example.com/user/repo.git %s/https---example.com-user-repo.git-abc1234",
 			suite.r.GiltDir),
@@ -117,13 +92,18 @@ func (suite *GitTestSuite) TestResetReturnsError() {
 		return err
 	}
 
-	suite.mockRunCommandErrors(anon)
+	MockRunCommandErrorsOn("git", anon)
 }
 
 func (suite *GitTestSuite) TestReset() {
-	anon := func() { suite.g.reset(suite.r) }
+	anon := func() error {
+		err := suite.g.reset(suite.r)
+		assert.NoError(suite.T(), err)
 
-	got := suite.mockRunCommand(anon)
+		return err
+	}
+
+	got := MockRunCommand(anon)
 	want := []string{
 		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 reset --hard abc1234",
 			suite.r.GiltDir),

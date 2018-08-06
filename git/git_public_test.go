@@ -24,9 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/retr0h/go-gilt/git"
@@ -60,33 +58,6 @@ func (suite *GitTestSuite) SetupTest() {
 
 func (suite *GitTestSuite) TearDownTest() {
 	testutil.RemoveTempDirectory(suite.r.GiltDir)
-}
-
-func (suite *GitTestSuite) mockRunCommand(f func()) []string {
-	var got []string
-
-	originalRunCommand := git.RunCommand
-	git.RunCommand = func(debug bool, name string, args ...string) error {
-		cmd := exec.Command(name, args...)
-		got = append(got, strings.Join(cmd.Args, " "))
-
-		return nil
-	}
-	defer func() { git.RunCommand = originalRunCommand }()
-
-	f()
-
-	return got
-}
-
-func (suite *GitTestSuite) mockRunCommandErrors(f func() error) {
-	originalRunCommand := git.RunCommand
-	git.RunCommand = func(debug bool, name string, args ...string) error {
-		return errors.New("RunCommand had an error")
-	}
-	defer func() { git.RunCommand = originalRunCommand }()
-
-	f()
 }
 
 func (suite *GitTestSuite) TestCloneAlreadyExists() {
@@ -141,9 +112,14 @@ func (suite *GitTestSuite) TestCloneErrorsOnResetReturnsError() {
 }
 
 func (suite *GitTestSuite) TestClone() {
-	anon := func() { suite.c.Clone(suite.r) }
+	anon := func() error {
+		err := suite.c.Clone(suite.r)
+		assert.NoError(suite.T(), err)
 
-	got := suite.mockRunCommand(anon)
+		return err
+	}
+
+	got := git.MockRunCommand(anon)
 	want := []string{
 		fmt.Sprintf("git clone https://example.com/user/repo.git %s/https---example.com-user-repo.git-abc1234",
 			suite.r.GiltDir),
@@ -173,14 +149,19 @@ func (suite *GitTestSuite) TestCheckoutIndexFailsCheckoutIndexReturnsError() {
 		return err
 	}
 
-	suite.mockRunCommandErrors(anon)
+	git.MockRunCommandErrorsOn("git", anon)
 }
 
 func (suite *GitTestSuite) TestCheckoutIndex() {
-	anon := func() { suite.g.CheckoutIndex(suite.r) }
+	anon := func() error {
+		err := suite.g.CheckoutIndex(suite.r)
+		assert.NoError(suite.T(), err)
+
+		return err
+	}
 
 	dstDir, _ := git.FilePathAbs(suite.r.Dst)
-	got := suite.mockRunCommand(anon)
+	got := git.MockRunCommand(anon)
 	want := []string{
 		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 checkout-index --force --all --prefix %s",
 			suite.r.GiltDir, (dstDir + string(os.PathSeparator))),

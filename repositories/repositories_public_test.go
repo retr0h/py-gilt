@@ -22,10 +22,12 @@ package repositories_test
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"path"
-	"path/filepath"
 	"testing"
 
+	"github.com/retr0h/go-gilt/git"
 	"github.com/retr0h/go-gilt/repositories"
 	"github.com/retr0h/go-gilt/test/testutil"
 	"github.com/stretchr/testify/assert"
@@ -43,6 +45,7 @@ func (suite *RepositoriesTestSuite) SetupTest() {
 }
 
 func (suite *RepositoriesTestSuite) TearDownTest() {
+	testutil.RemoveTempDirectory(repositories.GiltDir)
 }
 
 func (suite *RepositoriesTestSuite) TestUnmarshalYAMLDoesNotParseYAMLAndReturnsError() {
@@ -101,7 +104,6 @@ func (suite *RepositoriesTestSuite) TestUnmarshalYAMLFile() {
 	assert.NotNil(suite.T(), suite.r.Items[0].Dst)
 }
 
-// TODO: Mock out runCommand.
 func (suite *RepositoriesTestSuite) TestOverlayFailsCloneReturnsError() {
 	data := `
 ---
@@ -110,39 +112,61 @@ func (suite *RepositoriesTestSuite) TestOverlayFailsCloneReturnsError() {
   dst: path/user.repo
 `
 	suite.r.UnmarshalYAML([]byte(data))
-	err := suite.r.Overlay()
+	anon := func() error {
+		err := suite.r.Overlay()
+		assert.Error(suite.T(), err)
 
-	assert.Error(suite.T(), err)
+		return err
+	}
+
+	git.MockRunCommandErrorsOn("git", anon)
 }
 
-// TODO: Mock out runCommand.
 func (suite *RepositoriesTestSuite) TestOverlayFailsCheckoutIndexReturnsError() {
 	data := `
 ---
-- url: https://github.com/retr0h/ansible-etcd.git
-  version: 77a95b7
+- url: https://example.com/user/repo.git
+  version: abc1234
   dst: /invalid/directory
 `
 	suite.r.UnmarshalYAML([]byte(data))
-	err := suite.r.Overlay()
+	anon := func() error {
+		err := suite.r.Overlay()
+		assert.Error(suite.T(), err)
 
-	assert.Error(suite.T(), err)
+		return err
+	}
+
+	git.MockRunCommandErrorsOn("checkout-index", anon)
 }
 
-// TODO: Mock out runCommand.
 func (suite *RepositoriesTestSuite) TestOverlay() {
 	data := `
 ---
-- url: https://github.com/retr0h/ansible-etcd.git
-  version: 77a95b7
-  dst: /tmp/user.repo
+- url: https://example.com/user/repo.git
+  version: abc1234
+  dst: path/user.repo
 `
-	cloneDir := filepath.Join(repositories.GiltDir, "https---github.com-retr0h-ansible-etcd.git-77a95b7")
 	suite.r.UnmarshalYAML([]byte(data))
-	err := suite.r.Overlay()
+	anon := func() error {
+		err := suite.r.Overlay()
+		assert.NoError(suite.T(), err)
 
-	assert.DirExists(suite.T(), cloneDir)
-	assert.NoError(suite.T(), err)
+		return err
+	}
+
+	dstDir, _ := git.FilePathAbs(suite.r.Items[0].Dst)
+	got := git.MockRunCommand(anon)
+	want := []string{
+		fmt.Sprintf("git clone https://example.com/user/repo.git %s/https---example.com-user-repo.git-abc1234",
+			repositories.GiltDir),
+		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 reset --hard abc1234",
+			repositories.GiltDir),
+		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 checkout-index --force --all --prefix %s",
+			repositories.GiltDir, (dstDir + string(os.PathSeparator))),
+	}
+
+	assert.Equal(suite.T(), want, got)
 }
 
 // In order for `go test` to run this suite, we need to create

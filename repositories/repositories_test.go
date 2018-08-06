@@ -42,6 +42,7 @@ func (suite *RepositoriesTestSuite) SetupTest() {
 }
 
 func (suite *RepositoriesTestSuite) TearDownTest() {
+	testutil.RemoveTempDirectory(GiltDir)
 }
 
 func (suite *RepositoriesTestSuite) TestValidateSchemaHasErrorReturnsError() {
