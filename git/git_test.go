@@ -51,7 +51,7 @@ func (suite *GitTestSuite) SetupTest() {
 		URL:     "https://example.com/user/repo.git",
 		Version: "abc1234",
 		Dst:     "path/user.repo",
-		GiltDir: testutil.TempDirectory(),
+		GiltDir: testutil.CreateTempDirectory(),
 	}
 }
 

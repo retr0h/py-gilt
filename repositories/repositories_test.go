@@ -38,7 +38,7 @@ type RepositoriesTestSuite struct {
 
 func (suite *RepositoriesTestSuite) SetupTest() {
 	suite.r = Repositories{}
-	GiltDir = testutil.TempDirectory()
+	GiltDir = testutil.CreateTempDirectory()
 }
 
 func (suite *RepositoriesTestSuite) TearDownTest() {

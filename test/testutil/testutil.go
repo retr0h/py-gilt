@@ -26,8 +26,8 @@ import (
 	"os"
 )
 
-// TempDirectory generate a temp directory for tests.
-func TempDirectory() string {
+// CreateTempDirectory generate and create a temp directory for tests.
+func CreateTempDirectory() string {
 	dir, err := ioutil.TempDir("", "git-test")
 	if err != nil {
 		panic(err)
