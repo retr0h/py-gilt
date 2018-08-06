@@ -19,6 +19,14 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
+setup() {
+  GILT_CLONED_ETCD_REPO=~/.gilt/clone/cache/https---github.com-retr0h-ansible-etcd.git-77a95b7
+  GILT_DST_ETCD_REPO=/tmp/retr0h.ansible-etcd
+
+  rm -rf ${GILT_CLONED_ETCD_REPO}
+  rm -rf ${GILT_DST_ETCD_REPO}
+}
+
 @test "invoke gilt without arguments prints usage" {
 	run go run main.go
 
@@ -40,6 +48,14 @@
 	run bash -c 'cd test; go run ../main.go overlay'
 
 	[ "$status" -eq 0 ]
+
+	run stat ${GILT_CLONED_ETCD_REPO}
+
+	[ "$status" = 0 ]
+
+	run stat ${GILT_DST_ETCD_REPO}
+
+	[ "$status" = 0 ]
 }
 
 @test "invoke gilt overlay subcommand with filename flag" {
