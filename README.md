@@ -22,7 +22,7 @@ not 100% compatible with the python version, and not yet complete.
 
 ## Installation
 
-    $  go get github.com/retr0h/gofile
+    $  go get github.com/retr0h/go-gilt
 
 ## Usage
 
