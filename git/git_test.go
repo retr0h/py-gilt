@@ -33,17 +33,11 @@ import (
 type GitTestSuite struct {
 	suite.Suite
 	g *Git
-	c *Cloneable
 	r repository.Repository
 }
 
 func (suite *GitTestSuite) SetupTest() {
-	g := NewGit(false)
-	c := NewCloneable(false)
-	c.GC = g // Real Git Implementation
-
-	suite.g = g
-	suite.c = c
+	suite.g = NewGit(false)
 	suite.r = repository.Repository{
 		URL:     "https://example.com/user/repo.git",
 		Version: "abc1234",

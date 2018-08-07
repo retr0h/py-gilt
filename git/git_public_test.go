@@ -37,17 +37,11 @@ import (
 type GitTestSuite struct {
 	suite.Suite
 	g *git.Git
-	c *git.Cloneable
 	r repository.Repository
 }
 
 func (suite *GitTestSuite) SetupTest() {
-	g := git.NewGit(false)
-	c := git.NewCloneable(false)
-	c.GC = g // Real Git Implementation
-
-	suite.g = g
-	suite.c = c
+	suite.g = git.NewGit(false)
 	suite.r = repository.Repository{
 		URL:     "https://example.com/user/repo.git",
 		Version: "abc1234",
@@ -66,54 +60,36 @@ func (suite *GitTestSuite) TestCloneAlreadyExists() {
 		os.Mkdir(cloneDir, 0755)
 	}
 
-	suite.c.Clone(suite.r)
+	suite.g.Clone(suite.r)
 
 	defer os.RemoveAll(cloneDir)
 }
 
-type FakeGitCloneErrors struct {
-	git.Git
-}
-
-func (fg FakeGitCloneErrors) clone(repository repository.Repository) error {
-	return errors.New("clone had an error")
-}
-
-func (fg FakeGitCloneErrors) reset(repository repository.Repository) error {
-	return nil
-}
-
 func (suite *GitTestSuite) TestCloneErrorsOnCloneReturnsError() {
-	fg := FakeGitCloneErrors{}
-	c := git.Cloneable{}
-	c.GC = fg // Inject FakeGitCloneErrors{}
+	anon := func() error {
+		err := suite.g.Clone(suite.r)
+		assert.Error(suite.T(), err)
 
-	c.Clone(suite.r)
-}
+		return err
+	}
 
-type FakeGitResetErrors struct {
-	git.Git
-}
-
-func (fg FakeGitResetErrors) clone(repository repository.Repository) error {
-	return nil
-}
-
-func (fg FakeGitResetErrors) reset(repository repository.Repository) error {
-	return errors.New("reset had an error")
+	git.MockRunCommandErrorsOn("clone", anon)
 }
 
 func (suite *GitTestSuite) TestCloneErrorsOnResetReturnsError() {
-	fg := FakeGitResetErrors{}
-	c := git.Cloneable{}
-	c.GC = fg // Inject FakeGitResetErrors{}
+	anon := func() error {
+		err := suite.g.Clone(suite.r)
+		assert.Error(suite.T(), err)
 
-	c.Clone(suite.r)
+		return err
+	}
+
+	git.MockRunCommandErrorsOn("reset", anon)
 }
 
 func (suite *GitTestSuite) TestClone() {
 	anon := func() error {
-		err := suite.c.Clone(suite.r)
+		err := suite.g.Clone(suite.r)
 		assert.NoError(suite.T(), err)
 
 		return err

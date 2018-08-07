@@ -109,12 +109,10 @@ func (r *Repositories) validate(data []byte) error {
 // Overlay clone and extract the Repository items.
 func (r *Repositories) Overlay() error {
 	g := git.NewGit(r.Debug)
-	c := git.NewCloneable(r.Debug)
-	c.GC = g
 
 	for _, repository := range r.Items {
 		repository.GiltDir = GiltDir
-		err := c.Clone(repository)
+		err := g.Clone(repository)
 		if err != nil {
 			return err
 		}

@@ -35,23 +35,6 @@ var (
 	FilePathAbs = filepath.Abs
 )
 
-type GitCommander interface {
-	clone(repository repository.Repository) error
-	reset(repository repository.Repository) error
-}
-
-type Cloneable struct {
-	GC    GitCommander
-	Debug bool // Debug option set from CLI with debug state.
-}
-
-// NewCloneable factory to create a new NewCloneable instance.
-func NewCloneable(debug bool) *Cloneable {
-	return &Cloneable{
-		Debug: debug,
-	}
-}
-
 // Git struct for adding methods.
 type Git struct {
 	Debug bool // Debug option set from CLI with debug state.
@@ -66,7 +49,7 @@ func NewGit(debug bool) *Git {
 
 // Clone clone Repository.URL to Repository.getCloneDir, and hard checkout
 // to Repository.Version.
-func (c *Cloneable) Clone(repository repository.Repository) error {
+func (g *Git) Clone(repository repository.Repository) error {
 	cloneDir := repository.GetCloneDir()
 
 	msg := fmt.Sprintf("[%s@%s]:", aurora.Magenta(repository.URL), aurora.Magenta(repository.Version))
@@ -76,11 +59,11 @@ func (c *Cloneable) Clone(repository repository.Repository) error {
 	fmt.Println(msg)
 
 	if _, err := os.Stat(cloneDir); os.IsNotExist(err) {
-		if err := c.GC.clone(repository); err != nil {
+		if err := g.clone(repository); err != nil {
 			return err
 		}
 
-		if err := c.GC.reset(repository); err != nil {
+		if err := g.reset(repository); err != nil {
 			return err
 		}
 	} else {
