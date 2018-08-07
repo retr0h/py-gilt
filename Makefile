@@ -42,7 +42,7 @@ fmt:
 
 lint:
 	@echo "+ $@"
-	@golint ./... | grep -v $(VENDOR) | tee /dev/stderr
+	@echo $(PKGS) | xargs -L1 golint -set_exit_status | tee /dev/stderr
 
 vet:
 	@echo "+ $@"

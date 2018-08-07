@@ -60,13 +60,13 @@ func MockRunCommandImpl(errString string, f func() error) []string {
 	return got
 }
 
-// MockedRunCommand is sugar around MockRunCommandImpl, and returns
+// MockRunCommand is sugar around MockRunCommandImpl, and returns
 // a string with the arguments passed to RunCommand.
 func MockRunCommand(f func() error) []string {
 	return MockRunCommandImpl("", f)
 }
 
-// MockedRunCommandErrors is sugar around MockedRunCommandImpl and
+// MockRunCommandErrorsOn is sugar around MockedRunCommandImpl and
 // returns an error when invoked.
 func MockRunCommandErrorsOn(errCmd string, f func() error) {
 	MockRunCommandImpl(errCmd, f)
