@@ -74,14 +74,14 @@ func (g *Git) Clone(repository repository.Repository) error {
 	return nil
 }
 
-func (g Git) clone(repository repository.Repository) error {
+func (g *Git) clone(repository repository.Repository) error {
 	cloneDir := repository.GetCloneDir()
 	err := RunCommand(g.Debug, "git", "clone", repository.URL, cloneDir)
 
 	return err
 }
 
-func (g Git) reset(repository repository.Repository) error {
+func (g *Git) reset(repository repository.Repository) error {
 	cloneDir := repository.GetCloneDir()
 	err := RunCommand(g.Debug, "git", "-C", cloneDir, "reset", "--hard", repository.Version)
 
