@@ -4,13 +4,13 @@
 
 # go-gilt
 
-Gilt is a tool which aims to make Ansible repo management, managable.  Gilt
+Gilt is a tool which aims to make Ansible repo management, manageable.  Gilt
 clones repositories at a particular version, then overlays the repository to
 the provided destination.
 
 What makes Gilt interesting, is the ability to overlay particular files and/or
 directories from the specified repository to given destinations.  This is quite
-hepful when working with Ansible, since libraries, plugins, and playbooks are
+helpful when working with Ansible, since libraries, plugins, and playbooks are
 often shared, but [Galaxy][1] has no mechanism to cleanly handle this.
 
 [1]: https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html
