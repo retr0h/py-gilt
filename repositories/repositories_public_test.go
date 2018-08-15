@@ -74,16 +74,33 @@ foo: bar
 func (suite *RepositoriesTestSuite) TestUnmarshalYAML() {
 	data := `
 ---
-- url: https://example.com/user/repo.git
+- git: https://example.com/user/repo.git
   version: abc1234
-  dst: path/user.repo
+  dstDir: path/user.repo
+
+- git: https://example.com/user/repo.git
+  version: abc6789
+  sources:
+    - src: foo
+      dstFile: bar
 `
 	err := suite.r.UnmarshalYAML([]byte(data))
 
 	assert.NoError(suite.T(), err)
-	assert.Equal(suite.T(), "https://example.com/user/repo.git", suite.r.Items[0].URL)
-	assert.Equal(suite.T(), "abc1234", suite.r.Items[0].Version)
-	assert.Equal(suite.T(), "path/user.repo", suite.r.Items[0].Dst)
+
+	firstItem := suite.r.Items[0]
+	assert.Equal(suite.T(), "https://example.com/user/repo.git", firstItem.Git)
+	assert.Equal(suite.T(), "abc1234", firstItem.Version)
+	assert.Equal(suite.T(), "path/user.repo", firstItem.DstDir)
+	assert.Empty(suite.T(), firstItem.Sources)
+
+	secondItem := suite.r.Items[1]
+	fmt.Println(secondItem)
+	assert.Equal(suite.T(), "https://example.com/user/repo.git", secondItem.Git)
+	assert.Equal(suite.T(), "abc6789", secondItem.Version)
+	assert.Empty(suite.T(), secondItem.DstDir)
+	assert.Equal(suite.T(), "foo", secondItem.Sources[0].Src)
+	assert.Equal(suite.T(), "bar", secondItem.Sources[0].DstFile)
 }
 
 func (suite *RepositoriesTestSuite) TestUnmarshalYAMLFileReturnsErrorWithMissingFile() {
@@ -99,17 +116,30 @@ func (suite *RepositoriesTestSuite) TestUnmarshalYAMLFile() {
 	suite.r.Filename = path.Join("..", "test", "gilt.yml")
 	suite.r.UnmarshalYAMLFile()
 
-	assert.NotNil(suite.T(), suite.r.Items[0].URL)
-	assert.NotNil(suite.T(), suite.r.Items[0].Version)
-	assert.NotNil(suite.T(), suite.r.Items[0].Dst)
+	firstItem := suite.r.Items[0]
+	assert.NotNil(suite.T(), firstItem.Git)
+	assert.NotNil(suite.T(), firstItem.Version)
+	assert.NotNil(suite.T(), firstItem.DstDir)
+	assert.Empty(suite.T(), firstItem.Sources)
+
+	secondItem := suite.r.Items[1]
+	assert.NotNil(suite.T(), secondItem.Git)
+	assert.NotNil(suite.T(), secondItem.Version)
+	assert.Empty(suite.T(), secondItem.DstDir)
+	assert.NotNil(suite.T(), secondItem.Sources[0].Src)
+	assert.NotNil(suite.T(), secondItem.Sources[0].DstFile)
+	assert.NotNil(suite.T(), secondItem.Sources[1].Src)
+	assert.NotNil(suite.T(), secondItem.Sources[1].DstFile)
+	assert.NotNil(suite.T(), secondItem.Sources[2].Src)
+	assert.NotNil(suite.T(), secondItem.Sources[2].DstFile)
 }
 
 func (suite *RepositoriesTestSuite) TestOverlayFailsCloneReturnsError() {
 	data := `
 ---
-- url: invalid.
+- git: invalid.
   version: abc1234
-  dst: path/user.repo
+  dstDir: path/user.repo
 `
 	suite.r.UnmarshalYAML([]byte(data))
 	anon := func() error {
@@ -125,9 +155,9 @@ func (suite *RepositoriesTestSuite) TestOverlayFailsCloneReturnsError() {
 func (suite *RepositoriesTestSuite) TestOverlayFailsCheckoutIndexReturnsError() {
 	data := `
 ---
-- url: https://example.com/user/repo.git
+- git: https://example.com/user/repo.git
   version: abc1234
-  dst: /invalid/directory
+  dstDir: /invalid/directory
 `
 	suite.r.UnmarshalYAML([]byte(data))
 	anon := func() error {
@@ -143,9 +173,14 @@ func (suite *RepositoriesTestSuite) TestOverlayFailsCheckoutIndexReturnsError() 
 func (suite *RepositoriesTestSuite) TestOverlay() {
 	data := `
 ---
-- url: https://example.com/user/repo.git
+- git: https://example.com/user/repo1.git
   version: abc1234
-  dst: path/user.repo
+  dstDir: path/user.repo
+- git: https://example.com/user/repo2.git
+  version: abc1234
+  sources:
+    - src: foo
+      dstFile: bar
 `
 	suite.r.UnmarshalYAML([]byte(data))
 	anon := func() error {
@@ -155,15 +190,19 @@ func (suite *RepositoriesTestSuite) TestOverlay() {
 		return err
 	}
 
-	dstDir, _ := git.FilePathAbs(suite.r.Items[0].Dst)
+	dstDir, _ := git.FilePathAbs(suite.r.Items[0].DstDir)
 	got := git.MockRunCommand(anon)
 	want := []string{
-		fmt.Sprintf("git clone https://example.com/user/repo.git %s/https---example.com-user-repo.git-abc1234",
+		fmt.Sprintf("git clone https://example.com/user/repo1.git %s/https---example.com-user-repo1.git-abc1234",
 			repositories.GiltDir),
-		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 reset --hard abc1234",
+		fmt.Sprintf("git -C %s/https---example.com-user-repo1.git-abc1234 reset --hard abc1234",
 			repositories.GiltDir),
-		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 checkout-index --force --all --prefix %s",
+		fmt.Sprintf("git -C %s/https---example.com-user-repo1.git-abc1234 checkout-index --force --all --prefix %s",
 			repositories.GiltDir, (dstDir + string(os.PathSeparator))),
+		fmt.Sprintf("git clone https://example.com/user/repo2.git %s/https---example.com-user-repo2.git-abc1234",
+			repositories.GiltDir),
+		fmt.Sprintf("git -C %s/https---example.com-user-repo2.git-abc1234 reset --hard abc1234",
+			repositories.GiltDir),
 	}
 
 	assert.Equal(suite.T(), want, got)

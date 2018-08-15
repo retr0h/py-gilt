@@ -31,6 +31,7 @@ import (
 	"strings"
 
 	"github.com/logrusorgru/aurora"
+	"github.com/retr0h/go-gilt/copy"
 )
 
 var (
@@ -90,6 +91,33 @@ func RunCmd(debug bool, name string, args ...string) error {
 
 	if err := cmd.Run(); err != nil {
 		return errors.New(string(stderr.Bytes()))
+	}
+
+	return nil
+}
+
+// CopyFile copies src file to dst.
+func CopyFile(src string, dst string) error {
+	baseSrc := filepath.Base(src)
+	msg := fmt.Sprintf("%-4s - Copying file '%s' to '%s'", "", aurora.Cyan(baseSrc), aurora.Cyan(dst))
+	fmt.Println(msg)
+
+	if err := copy.File(src, dst); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// CopyDir copies src directory to dst.
+func CopyDir(src string, dst string) error {
+	baseSrc := filepath.Base(src)
+	msg := fmt.Sprintf("%-4s - Copying dir '%s' to '%s'", "", aurora.Cyan(baseSrc), aurora.Cyan(dst))
+	fmt.Println(msg)
+
+	if err := copy.Dir(src, dst); err != nil {
+		fmt.Println(err)
+		return err
 	}
 
 	return nil

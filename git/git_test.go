@@ -39,9 +39,9 @@ type GitTestSuite struct {
 func (suite *GitTestSuite) SetupTest() {
 	suite.g = NewGit(false)
 	suite.r = repository.Repository{
-		URL:     "https://example.com/user/repo.git",
+		Git:     "https://example.com/user/repo.git",
 		Version: "abc1234",
-		Dst:     "path/user.repo",
+		DstDir:  "path/user.repo",
 		GiltDir: testutil.CreateTempDirectory(),
 	}
 }

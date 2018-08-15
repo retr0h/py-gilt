@@ -1,4 +1,16 @@
 ---
-- url: https://github.com/retr0h/ansible-etcd.git
+- git: https://github.com/retr0h/ansible-etcd.git
   version: 77a95b7
-  dst: /tmp/retr0h.ansible-etcd
+  dstDir: /tmp/retr0h.ansible-etcd
+
+- git: https://github.com/lorin/openstack-ansible-modules.git
+  version: 2677cc3
+  sources:
+    - src: "*_manage"
+      dstDir: library
+    - src: nova_quota
+      dstDir: library
+    - src: neutron_router
+      dstFile: library/neutron_router.py
+    - src: tests
+      dstDir: tests

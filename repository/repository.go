@@ -21,23 +21,31 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/logrusorgru/aurora"
+	"github.com/retr0h/go-gilt/util"
 )
+
+// Sources mapping of files and/or directories needing copied.
+type Sources struct {
+	Src     string `yaml:"src"`     // Src source file or directory to copy.
+	DstFile string `yaml:"dstFile"` // DstFile destination of file copy.
+	DstDir  string `yaml:"dstDir"`  // DstDir destination of directory copy.
+}
 
 // Repository containing the repository's details.
 type Repository struct {
-	URL     string `yaml:"url"`
-	Version string `yaml:"version"`
-	Dst     string `yaml:"dst"`
-	GiltDir string // GiltDir option set from CLI.
+	Git     string    `yaml:"git"`     // Git url of Git repository to clone.
+	Version string    `yaml:"version"` // Version of Git repository to use.
+	DstDir  string    `yaml:"dstDir"`  // DstDir destination directory to copy clone to.
+	Sources []Sources // Sources containing files and/or directories to copy.
+	GiltDir string    // GiltDir option set from CLI.
 }
-
-// // NewRepository factory to create a new Repository instance.
-// func NewRepository(debug bool) *Git {
-//     return &Repository{}
-// }
 
 // GetCloneDir returns the path to the Repository's clone directory.
 func (r *Repository) GetCloneDir() string {
@@ -49,7 +57,57 @@ func (r *Repository) getCloneHash() string {
 		"/", "-",
 		":", "-",
 	)
-	replacedGitURL := replacer.Replace(r.URL)
+	replacedGitURL := replacer.Replace(r.Git)
 
 	return fmt.Sprintf("%s-%s", replacedGitURL, r.Version)
+}
+
+// CopySources copy Repository.Src to Repository.DstFile or Repository.DstDir.
+func (r *Repository) CopySources() error {
+	cloneDir := r.GetCloneDir()
+
+	msg := fmt.Sprintf("%-2s [%s]:", "", aurora.Magenta(cloneDir))
+	fmt.Println(msg)
+
+	for _, rSource := range r.Sources {
+		srcFullPath := filepath.Join(cloneDir, rSource.Src)
+		globbedSrc, err := filepath.Glob(srcFullPath)
+		if err != nil {
+			return err
+		}
+
+		for _, src := range globbedSrc {
+			// The source is a file.
+			if info, err := os.Stat(src); err == nil && info.Mode().IsRegular() {
+				// ... and the destination is declared a directory.
+				if rSource.DstFile != "" {
+					if err := util.CopyFile(src, rSource.DstFile); err != nil {
+						return err
+					}
+				} else if rSource.DstDir != "" {
+					// ... and the destination directory exists.
+					if info, err := os.Stat(rSource.DstDir); err == nil && info.Mode().IsDir() {
+						srcBaseFile := filepath.Base(src)
+						newDst := filepath.Join(rSource.DstDir, srcBaseFile)
+						if err := util.CopyFile(src, newDst); err != nil {
+							return err
+						}
+					} else {
+						msg := fmt.Sprintf("DstDir '%s' does not exist", rSource.DstDir)
+						return errors.New(msg)
+					}
+				}
+				// The source is a directory.
+			} else if info, err := os.Stat(src); err == nil && info.Mode().IsDir() {
+				if info, err := os.Stat(rSource.DstDir); err == nil && info.Mode().IsDir() {
+					os.RemoveAll(rSource.DstDir)
+				}
+				if err := util.CopyDir(src, rSource.DstDir); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }

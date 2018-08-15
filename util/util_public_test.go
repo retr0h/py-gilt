@@ -21,7 +21,9 @@
 package util_test
 
 import (
+	"os"
 	"os/user"
+	"path"
 	"path/filepath"
 	"testing"
 
@@ -88,4 +90,40 @@ func TestRunCommandPrintsStreamingStderr(t *testing.T) {
 	want := "cat: foo: No such file or directory\n"
 
 	assert.Equal(t, want, got)
+}
+
+func TestCopyFile(t *testing.T) {
+	srcFile := path.Join("..", "test", "resources", "copy", "file")
+	dstFile := path.Join("..", "test", "resources", "copy", "copiedFile")
+	err := util.CopyFile(srcFile, dstFile)
+	defer os.Remove(dstFile)
+
+	assert.NoError(t, err)
+	assert.FileExistsf(t, dstFile, "File does not exist")
+}
+
+func TestCopyFileReturnsError(t *testing.T) {
+	srcFile := path.Join("..", "test", "resources", "copy", "file")
+	invalidDstFile := "/super/invalid/path/to/write/to"
+	err := util.CopyFile(srcFile, invalidDstFile)
+
+	assert.Error(t, err)
+}
+
+func TestCopyDir(t *testing.T) {
+	srcDir := path.Join("..", "test", "resources", "copy", "dir")
+	dstDir := path.Join("..", "test", "resources", "copy", "copiedDir")
+	err := util.CopyDir(srcDir, dstDir)
+	defer os.RemoveAll(dstDir)
+
+	assert.NoError(t, err)
+	assert.DirExistsf(t, dstDir, "Dir does not exist")
+}
+
+func TestCopyDirReturnsError(t *testing.T) {
+	srcDir := path.Join("..", "test", "resources", "copy", "dir")
+	invalidDstDir := "/super/invalid/path/to/write/to"
+	err := util.CopyDir(srcDir, invalidDstDir)
+
+	assert.Error(t, err)
 }

@@ -30,14 +30,26 @@ not 100% compatible with the python version, and not yet complete.
 
 Create the giltfile (`gilt.yml`).
 
-Clone the specified `url`@`version` to the configurable path `--giltdir`, and
-extract the repository to the provided `dst`.
+Clone the specified `url`@`version` to the configurable path `--giltdir`.
+Extract the repo the `dstDir` when `dstDir` is provided.  Otherwise, copy files
+and/or directories to the desired destinations.
 
 ```yaml
 ---
-- url: https://github.com/retr0h/ansible-etcd.git
+- git: https://github.com/retr0h/ansible-etcd.git
   version: 77a95b7
-  dst: roles/retr0h.ansible-etcd
+  dstDir: roles/retr0h.ansible-etcd
+- git: https://github.com/lorin/openstack-ansible-modules.git
+  version: 2677cc3
+  sources:
+    - src: "*_manage"
+      dstDir: library
+    - src: nova_quota
+      dstDir: library
+    - src: neutron_router
+      dstFile: library/neutron_router.py
+    - src: tests
+      dstDir: tests
 ```
 
 Overlay a remote repository into the destination provided.

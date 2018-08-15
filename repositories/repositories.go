@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/ghodss/yaml"
@@ -117,9 +118,21 @@ func (r *Repositories) Overlay() error {
 			return err
 		}
 
-		// Checkout into repository.Dst.
-		if repository.Dst != "" {
+		// Checkout into repository.DstDir.
+		if repository.DstDir != "" {
+			// Delete dstDir since Checkout-Index does not clean old files that may
+			// no longer exist in repository.
+			if info, err := os.Stat(repository.DstDir); err == nil && info.Mode().IsDir() {
+				os.RemoveAll(repository.DstDir)
+			}
 			if err := g.CheckoutIndex(repository); err != nil {
+				return err
+			}
+		}
+
+		// Copy sources from Repository.Src to Repository.DstDir or Repository.DstFile.
+		if len(repository.Sources) > 0 {
+			if err := repository.CopySources(); err != nil {
 				return err
 			}
 		}

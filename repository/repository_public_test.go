@@ -35,9 +35,9 @@ type RepositoryTestSuite struct {
 
 func (suite *RepositoryTestSuite) SetupTest() {
 	suite.r = repository.Repository{
-		URL:     "https://example.com/user/repo.git",
+		Git:     "https://example.com/user/repo.git",
 		Version: "abc1234",
-		Dst:     "path/user.repo",
+		DstDir:  "path/user.repo",
 		GiltDir: "/tmp/gilt",
 	}
 }

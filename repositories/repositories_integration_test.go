@@ -1,3 +1,4 @@
+// +build integration
 // Copyright (c) 2018 John Dewey
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,47 +19,41 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-package git
+package repositories_test
 
-const configSchema = `
-{
-  "type": "array",
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "minItems": 1,
-  "items": {
-    "type": "object",
-    "properties": {
-      "git": {
-        "type": "string"
-      },
-      "sha": {
-        "type": "string",
-        "pattern": "^[0-9a-f]{5,40}$"
-      },
-      "dst": {
-        "type": "string"
-      },
-      "files": {
-        "type": "array"
-      }
-    },
-    "additionalProperties": true,
-    "oneOf": [
-      {
-        "required": [
-          "git",
-          "sha",
-          "dst"
-        ]
-      },
-      {
-        "required": [
-          "git",
-          "sha",
-          "files"
-        ]
-      }
-    ]
-  }
+import (
+	"fmt"
+
+	"github.com/retr0h/go-gilt/test/testutil"
+	"github.com/stretchr/testify/assert"
+)
+
+func (suite *RepositoriesTestSuite) TestOverlayRemovesSrcDirPriorToCheckoutIndex() {
+	tempDir := testutil.CreateTempDirectory()
+	data := fmt.Sprintf(`
+---
+- git: https://github.com/retr0h/ansible-etcd.git
+  version: 77a95b7
+  dstDir: %s/retr0h.ansible-etcd
+`, tempDir)
+	suite.r.UnmarshalYAML([]byte(data))
+	suite.r.Overlay()
+	err := suite.r.Overlay()
+
+	assert.NoError(suite.T(), err)
 }
+
+func (suite *RepositoriesTestSuite) TestOverlayFailsCopySourcesReturnsError() {
+	data := `
+---
+- git: https://github.com/lorin/openstack-ansible-modules.git
+  version: 2677cc3
+  sources:
+    - src: "*_manage"
+      dstDir: /super/invalid/path/to/write/to
 `
+	suite.r.UnmarshalYAML([]byte(data))
+	err := suite.r.Overlay()
+
+	assert.Error(suite.T(), err)
+}

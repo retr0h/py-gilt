@@ -19,12 +19,32 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 
-setup() {
-  GILT_CLONED_ETCD_REPO=~/.gilt/clone/cache/https---github.com-retr0h-ansible-etcd.git-77a95b7
-  GILT_DST_ETCD_REPO=/tmp/retr0h.ansible-etcd
+GILT_TEST_BASE_DIR=test/integration/tmp
+GILT_LIBRARY_DIR=${GILT_TEST_BASE_DIR}/library
+GILT_ROLES_DIR=${GILT_TEST_BASE_DIR}/roles
+GILT_TEST_DIR=${GILT_TEST_BASE_DIR}/tests
+GILT_PROGRAM="../../../main.go"
+GILT_DIR=~/.gilt/clone
 
-  rm -rf ${GILT_CLONED_ETCD_REPO}
-  rm -rf ${GILT_DST_ETCD_REPO}
+setup() {
+	GILT_CLONED_REPO_1=${GILT_DIR}/cache/https---github.com-retr0h-ansible-etcd.git-77a95b7
+	GILT_CLONED_REPO_2=${GILT_DIR}/cache/https---github.com-lorin-openstack-ansible-modules.git-2677cc3
+	GILT_CLONED_REPO_1_DST_DIR=/tmp/retr0h.ansible-etcd
+
+	mkdir -p ${GILT_LIBRARY_DIR}
+	mkdir -p ${GILT_ROLES_DIR}
+	cp test/gilt.yml ${GILT_TEST_BASE_DIR}/gilt.yml
+}
+
+teardown() {
+	rm -rf ${GILT_CLONED_REPO_1}
+	rm -rf ${GILT_CLONED_REPO_2}
+	rm -rf ${GILT_CLONED_REPO_1_DST_DIR}
+
+	rm -rf ${GILT_LIBRARY_DIR}
+	rm -rf ${GILT_ROLES_DIR}
+	rm -rf ${GILT_TEST_DIR}
+	rm -f ${GILT_TEST_BASE_DIR}/gilt.yml
 }
 
 @test "invoke gilt without arguments prints usage" {
@@ -45,35 +65,83 @@ setup() {
 }
 
 @test "invoke gilt overlay subcommand" {
-	run bash -c 'cd test; go run ../main.go overlay'
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay"
 
 	[ "$status" -eq 0 ]
-
-	run stat ${GILT_CLONED_ETCD_REPO}
-
-	[ "$status" = 0 ]
-
-	run stat ${GILT_DST_ETCD_REPO}
-
-	[ "$status" = 0 ]
 }
 
 @test "invoke gilt overlay subcommand with filename flag" {
-	run go run main.go overlay --filename test/gilt.yml
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay --filename gilt.yml"
 
 	[ "$status" -eq 0 ]
 }
 
 @test "invoke gilt overlay subcommand with f flag" {
-	run go run main.go overlay -f test/gilt.yml
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay -f gilt.yml"
 
 	[ "$status" -eq 0 ]
 }
 
 @test "invoke gilt overlay subcommand with debug flag" {
-	run go run main.go --debug overlay --filename test/gilt.yml
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} --debug overlay"
 
 	[ "$status" -eq 0 ]
 	echo "${output}" | grep "[https://github.com/retr0h/ansible-etcd.git@77a95b7]"
 	echo "${output}" | grep -E ".*Cloning to.*https---github.com-retr0h-ansible-etcd.git-77a95b7"
+}
+
+@test "invoke gilt overlay when already cloned" {
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay"
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay"
+
+	echo "${output}" | grep "Clone already exists"
+}
+
+@test "invoke gilt overlay and clone" {
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay"
+
+	run stat ${GILT_CLONED_REPO_1}
+	[ "$status" = 0 ]
+
+	run stat ${GILT_CLONED_REPO_2}
+	[ "$status" = 0 ]
+}
+
+@test "invoke gilt overlay and checkout index" {
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay"
+
+	run stat ${GILT_CLONED_REPO_1_DST_DIR}
+	[ "$status" = 0 ]
+}
+
+@test "invoke gilt overlay and copy sources" {
+	run bash -c "cd ${GILT_TEST_BASE_DIR}; go run ${GILT_PROGRAM} --giltdir ${GILT_DIR} overlay"
+
+	# Copy src file matched by regexp to dst dir.
+	run stat ${GILT_LIBRARY_DIR}/cinder_manage
+	[ "$status" = 0 ]
+	run stat ${GILT_LIBRARY_DIR}/glance_manage
+	[ "$status" = 0 ]
+	run stat ${GILT_LIBRARY_DIR}/heat_manage
+	[ "$status" = 0 ]
+	run stat ${GILT_LIBRARY_DIR}/keystone_manage
+	[ "$status" = 0 ]
+	run stat ${GILT_LIBRARY_DIR}/nova_manage
+	[ "$status" = 0 ]
+
+	# Copy src file to dst dir.
+	run stat ${GILT_LIBRARY_DIR}/nova_quota
+	[ "$status" = 0 ]
+
+	# Copy src file to dst file.
+	run stat ${GILT_LIBRARY_DIR}/neutron_router.py
+	[ "$status" = 0 ]
+
+	# Copy src dir to dst dir.
+	run stat ${GILT_TEST_DIR}/keystone_service.py
+	echo $output
+	[ "$status" = 0 ]
+	run stat ${GILT_TEST_DIR}/test_keystone_service.py
+	echo $output
+	[ "$status" = 0 ]
 }

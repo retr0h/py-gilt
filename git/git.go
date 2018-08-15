@@ -47,15 +47,15 @@ func NewGit(debug bool) *Git {
 	}
 }
 
-// Clone clone Repository.URL to Repository.getCloneDir, and hard checkout
+// Clone clone Repository.Git to Repository.getCloneDir, and hard checkout
 // to Repository.Version.
 func (g *Git) Clone(repository repository.Repository) error {
 	cloneDir := repository.GetCloneDir()
 
-	msg := fmt.Sprintf("[%s@%s]:", aurora.Magenta(repository.URL), aurora.Magenta(repository.Version))
+	msg := fmt.Sprintf("[%s@%s]:", aurora.Magenta(repository.Git), aurora.Magenta(repository.Version))
 	fmt.Println(msg)
 
-	msg = fmt.Sprintf("%-2s - %s '%s'", "", aurora.Cyan("Cloning to"), aurora.Cyan(cloneDir))
+	msg = fmt.Sprintf("%-2s - Cloning to '%s'", "", aurora.Cyan(cloneDir))
 	fmt.Println(msg)
 
 	if _, err := os.Stat(cloneDir); os.IsNotExist(err) {
@@ -67,7 +67,8 @@ func (g *Git) Clone(repository repository.Repository) error {
 			return err
 		}
 	} else {
-		msg := fmt.Sprintf("%-4s * %s", "", aurora.Brown("Clone already exists"))
+		bang := aurora.Bold(aurora.Red("!"))
+		msg := fmt.Sprintf("%-2s %s %s", "", bang, aurora.Brown("Clone already exists"))
 		fmt.Println(msg)
 	}
 
@@ -76,7 +77,7 @@ func (g *Git) Clone(repository repository.Repository) error {
 
 func (g *Git) clone(repository repository.Repository) error {
 	cloneDir := repository.GetCloneDir()
-	err := RunCommand(g.Debug, "git", "clone", repository.URL, cloneDir)
+	err := RunCommand(g.Debug, "git", "clone", repository.Git, cloneDir)
 
 	return err
 }
@@ -88,15 +89,15 @@ func (g *Git) reset(repository repository.Repository) error {
 	return err
 }
 
-// CheckoutIndex checkout Repository.Git to Repository.Dst.
+// CheckoutIndex checkout Repository.Git to Repository.DstDir.
 func (g *Git) CheckoutIndex(repository repository.Repository) error {
 	cloneDir := repository.GetCloneDir()
-	dstDir, err := FilePathAbs(repository.Dst)
+	dstDir, err := FilePathAbs(repository.DstDir)
 	if err != nil {
 		return err
 	}
 
-	msg := fmt.Sprintf("%-2s - %s '%s'", "", aurora.Cyan("Extracting to"), aurora.Cyan(dstDir))
+	msg := fmt.Sprintf("%-2s - Extracting to '%s'", "", aurora.Cyan(dstDir))
 	fmt.Println(msg)
 
 	cmdArgs := []string{

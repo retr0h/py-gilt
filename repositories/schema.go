@@ -27,35 +27,64 @@ const configSchema = `
   "minItems": 1,
   "items": {
     "type": "object",
+    "additionalProperties": false,
     "properties": {
-      "url": {
+      "git": {
         "type": "string"
       },
       "version": {
         "type": "string",
         "pattern": "^[0-9a-f]{5,40}$"
       },
-      "dst": {
+      "dstDir": {
         "type": "string"
       },
-      "files": {
-        "type": "array"
+      "sources": {
+        "type": "array", 
+        "items": {
+          "type": "object", 
+          "additionalProperties": false, 
+          "properties": {
+            "src": {
+              "type": "string"
+            }, 
+            "dstFile": {
+              "type": "string"
+            },
+            "dstDir": {
+              "type": "string"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "src",
+                "dstFile"
+              ]
+            },
+            {
+              "required": [
+                "src",
+                "dstDir"
+              ]
+            }
+          ]
+        }
       }
     },
-    "additionalProperties": true,
     "oneOf": [
       {
         "required": [
-          "url",
+          "git",
           "version",
-          "dst"
+          "dstDir"
         ]
       },
       {
         "required": [
-          "url",
+          "git",
           "version",
-          "files"
+          "sources"
         ]
       }
     ]

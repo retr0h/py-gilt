@@ -70,22 +70,20 @@ foo:
 	assert.Equal(suite.T(), want, err)
 }
 
-func (suite *RepositoriesTestSuite) TestValidateWithoutStringReturnsError() {
+func (suite *RepositoriesTestSuite) TestValidateRequiredTopLevelKeysReturnsError() {
 	data := `
 ---
-- url:
-  version:
-  dst:
+- missing:
+  required:
+  keys:
 `
 	jsonData, _ := yaml.YAMLToJSON([]byte(data))
 	err := suite.r.validate([]byte(jsonData))
 
-	assert.Error(suite.T(), err)
-
 	messages := []string{
-		"0.dst: Invalid type. Expected: string, given: null",
-		"0.url: Invalid type. Expected: string, given: null",
-		"0.version: Invalid type. Expected: string, given: null",
+		"git: git is required",
+		"version: version is required",
+		"dstDir: dstDir is required",
 	}
 
 	for _, want := range messages {
@@ -93,12 +91,141 @@ func (suite *RepositoriesTestSuite) TestValidateWithoutStringReturnsError() {
 	}
 }
 
+func (suite *RepositoriesTestSuite) TestValidateRequiredSourcesKeysReturnsError() {
+	data := `
+---
+- git: https://example.com/user/repo.git
+  version: abc1234
+  sources:
+    - missing:
+      required:
+      keys:
+`
+	jsonData, _ := yaml.YAMLToJSON([]byte(data))
+	err := suite.r.validate([]byte(jsonData))
+
+	messages := []string{
+		"src: src is required",
+		"dstFile: dstFile is required",
+	}
+
+	for _, want := range messages {
+		assert.Contains(suite.T(), err.Error(), want)
+	}
+}
+
+func (suite *RepositoriesTestSuite) TestValidateNoAdditionalTopLevelKeysReturnsError() {
+	data := `
+---
+- git: https://example.com/user/repo.git
+  version: abc1234
+  dstDir: path/user.repo
+  extra:
+`
+	jsonData, _ := yaml.YAMLToJSON([]byte(data))
+	err := suite.r.validate([]byte(jsonData))
+	want := "extra: Additional property extra is not allowed"
+
+	assert.Equal(suite.T(), want, err.Error())
+}
+
+func (suite *RepositoriesTestSuite) TestValidateNoAdditionalSourcesKeysReturnsError() {
+	data := `
+---
+- git: https://example.com/user/repo.git
+  version: abc1234
+  sources:
+    - src: foo
+      dstFile: bar
+      extra:
+`
+	jsonData, _ := yaml.YAMLToJSON([]byte(data))
+	err := suite.r.validate([]byte(jsonData))
+	want := "extra: Additional property extra is not allowed"
+
+	assert.Equal(suite.T(), want, err.Error())
+}
+
+func (suite *RepositoriesTestSuite) TestValidateMutuallyExclusiveSourcesKeysReturnsError() {
+	data := `
+---
+- git: https://example.com/user/repo.git
+  version: abc1234
+  sources:
+    - src: foo
+      dstFile: bar
+      dstDir: bar
+`
+	jsonData, _ := yaml.YAMLToJSON([]byte(data))
+	err := suite.r.validate([]byte(jsonData))
+	want := "0.sources.0: Must validate one and only one schema (oneOf)"
+
+	assert.Equal(suite.T(), want, err.Error())
+}
+
+func (suite *RepositoriesTestSuite) TestValidateWithoutValueReturnsError() {
+	data := `
+---
+- git:
+  version:
+  dstDir:
+
+- git:
+  version:
+  sources:
+    - src:
+      dstFile:
+
+- git:
+  version:
+  sources:
+    - src:
+      dstDir:
+`
+	jsonData, _ := yaml.YAMLToJSON([]byte(data))
+	err := suite.r.validate([]byte(jsonData))
+	messages := []string{
+		"0.git: Invalid type. Expected: string, given: null",
+		"0.version: Invalid type. Expected: string, given: null",
+		"0.dstDir: Invalid type. Expected: string, given: null",
+		"1.git: Invalid type. Expected: string, given: null",
+		"1.version: Invalid type. Expected: string, given: null",
+		"1.sources.0.src: Invalid type. Expected: string, given: null",
+		"1.sources.0.dstFile: Invalid type. Expected: string, given: null",
+		"2.git: Invalid type. Expected: string, given: null",
+		"2.version: Invalid type. Expected: string, given: null",
+		"2.sources.0.src: Invalid type. Expected: string, given: null",
+		"2.sources.0.dstDir: Invalid type. Expected: string, given: null",
+	}
+
+	for _, want := range messages {
+		assert.Contains(suite.T(), err.Error(), want)
+	}
+}
+
+func (suite *RepositoriesTestSuite) TestValidateMutuallyExclusiveReturnsError() {
+	data := `
+---
+- git: https://example.com/user/repo.git
+  version: abc1234
+  dstDir: path/user.repo
+  sources:
+    - src: foo
+      dstFile: bar
+`
+	jsonData, _ := yaml.YAMLToJSON([]byte(data))
+	err := suite.r.validate([]byte(jsonData))
+	want := "0: Must validate one and only one schema (oneOf)"
+
+	assert.Equal(suite.T(), want, err.Error())
+}
+
 func (suite *RepositoriesTestSuite) TestValidate() {
 	data := `
 ---
-- url: https://example.com/user/repo.git
+- git: https://example.com/user/repo.git
   version: abc1234
-  dst: path/user.repo
+  dstDir: path/user.repo
 `
 	jsonData, _ := yaml.YAMLToJSON([]byte(data))
 	err := suite.r.validate([]byte(jsonData))

@@ -1,5 +1,6 @@
 VENDOR := vendor
 PKGS := $(shell go list ./... | grep -v /$(VENDOR)/)
+SRC = $(shell find . -type f -name '*.go' -not -path "./$(VENDOR)/*")
 $(if $(PKGS), , $(error "go list failed"))
 PKGS_DELIM := $(shell echo $(PKGS) | sed -e 's/ /,/g')
 GITCOMMIT ?= $(shell git rev-parse --short HEAD)
@@ -19,9 +20,9 @@ LDFLAGS := -s \
 BUILDDIR := .build
 export GOCACHE = off
 
-test: fmt lint vet bats
+test: fmtcheck lint vet bats
 	@echo "+ $@"
-	@go test -parallel 5 -covermode=count ./...
+	@go test -tags=integration -parallel 5 -covermode=count ./...
 
 bats:
 	@echo "+ $@"
@@ -31,22 +32,26 @@ cover:
 	@echo "+ $@"
 	$(shell [ -e coverage.out ] && rm coverage.out)
 	@echo "mode: count" > coverage-all.out
-	$(foreach pkg,$(PKGS),\
-		go test -coverprofile=coverage.out -covermode=count $(pkg);\
+	@$(foreach pkg,$(PKGS),\
+		go test -tags=integration -coverprofile=coverage.out -covermode=count $(pkg);\
 		tail -n +2 coverage.out >> coverage-all.out;)
 	@go tool cover -html=coverage-all.out -o=coverage-all.html
 
 fmt:
 	@echo "+ $@"
-	@gofmt -s -l . | grep -v $(VENDOR) | tee /dev/stderr
+	@gofmt -s -l -w $(SRC)
+
+fmtcheck:
+	@echo "+ $@"
+	@bash -c "diff -u <(echo -n) <(gofmt -d $(SRC))"
 
 lint:
 	@echo "+ $@"
-	@echo $(PKGS) | xargs -L1 golint -set_exit_status | tee /dev/stderr
+	@echo $(PKGS) | xargs -L1 golint -set_exit_status
 
 vet:
 	@echo "+ $@"
-	@go vet $(shell go list ./... | grep -v $(VENDOR))
+	@go vet $(PKGS)
 
 clean:
 	@echo "+ $@"

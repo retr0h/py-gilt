@@ -43,9 +43,9 @@ type GitTestSuite struct {
 func (suite *GitTestSuite) SetupTest() {
 	suite.g = git.NewGit(false)
 	suite.r = repository.Repository{
-		URL:     "https://example.com/user/repo.git",
+		Git:     "https://example.com/user/repo.git",
 		Version: "abc1234",
-		Dst:     "path/user.repo",
+		DstDir:  "path/user.repo",
 		GiltDir: testutil.CreateTempDirectory(),
 	}
 }
@@ -136,7 +136,7 @@ func (suite *GitTestSuite) TestCheckoutIndex() {
 		return err
 	}
 
-	dstDir, _ := git.FilePathAbs(suite.r.Dst)
+	dstDir, _ := git.FilePathAbs(suite.r.DstDir)
 	got := git.MockRunCommand(anon)
 	want := []string{
 		fmt.Sprintf("git -C %s/https---example.com-user-repo.git-abc1234 checkout-index --force --all --prefix %s",
