@@ -118,8 +118,10 @@ func (r *Repositories) Overlay() error {
 		}
 
 		// Checkout into repository.Dst.
-		if err := g.CheckoutIndex(repository); err != nil {
-			return err
+		if repository.Dst != "" {
+			if err := g.CheckoutIndex(repository); err != nil {
+				return err
+			}
 		}
 	}
 
