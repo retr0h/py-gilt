@@ -61,6 +61,9 @@ def extract(repository, destination, version, debug=False):
     :return: None
     """
     with util.saved_cwd():
+        if os.path.isdir(destination):
+            shutil.rmtree(destination)
+
         os.chdir(repository)
         _get_version(version, debug)
         cmd = sh.git.bake(
