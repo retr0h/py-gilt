@@ -31,6 +31,13 @@ import (
 	"github.com/retr0h/go-gilt/util"
 )
 
+var (
+	// CopyFile is mocked for tests.
+	CopyFile = util.CopyFile
+	// CopyDir is mocked for tests.
+	CopyDir = util.CopyDir
+)
+
 // Sources mapping of files and/or directories needing copied.
 type Sources struct {
 	Src     string `yaml:"src"`     // Src source file or directory to copy.
@@ -81,7 +88,7 @@ func (r *Repository) CopySources() error {
 			if info, err := os.Stat(src); err == nil && info.Mode().IsRegular() {
 				// ... and the destination is declared a directory.
 				if rSource.DstFile != "" {
-					if err := util.CopyFile(src, rSource.DstFile); err != nil {
+					if err := CopyFile(src, rSource.DstFile); err != nil {
 						return err
 					}
 				} else if rSource.DstDir != "" {
@@ -89,7 +96,7 @@ func (r *Repository) CopySources() error {
 					if info, err := os.Stat(rSource.DstDir); err == nil && info.Mode().IsDir() {
 						srcBaseFile := filepath.Base(src)
 						newDst := filepath.Join(rSource.DstDir, srcBaseFile)
-						if err := util.CopyFile(src, newDst); err != nil {
+						if err := CopyFile(src, newDst); err != nil {
 							return err
 						}
 					} else {
@@ -102,7 +109,7 @@ func (r *Repository) CopySources() error {
 				if info, err := os.Stat(rSource.DstDir); err == nil && info.Mode().IsDir() {
 					os.RemoveAll(rSource.DstDir)
 				}
-				if err := util.CopyDir(src, rSource.DstDir); err != nil {
+				if err := CopyDir(src, rSource.DstDir); err != nil {
 					return err
 				}
 			}

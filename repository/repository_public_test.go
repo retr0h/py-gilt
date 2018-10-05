@@ -21,9 +21,11 @@
 package repository_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/retr0h/go-gilt/repository"
+	"github.com/retr0h/go-gilt/test/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -38,16 +40,17 @@ func (suite *RepositoryTestSuite) SetupTest() {
 		Git:     "https://example.com/user/repo.git",
 		Version: "abc1234",
 		DstDir:  "path/user.repo",
-		GiltDir: "/tmp/gilt",
 	}
+	suite.r.GiltDir = testutil.CreateTempDirectory()
 }
 
 func (suite *RepositoryTestSuite) TearDownTest() {
+	testutil.RemoveTempDirectory(suite.r.GiltDir)
 }
 
 func (suite *RepositoryTestSuite) TestGetCloneDir() {
 	got := suite.r.GetCloneDir()
-	want := "/tmp/gilt/https---example.com-user-repo.git-abc1234"
+	want := filepath.Join(suite.r.GiltDir, "https---example.com-user-repo.git-abc1234")
 
 	assert.Equal(suite.T(), want, got)
 }

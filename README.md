@@ -4,21 +4,25 @@
 
 # go-gilt
 
-Gilt is a tool which aims to make Ansible repo management, manageable.  Gilt
+Gilt is a tool which aims to make repo management, manageable.  Gilt
 clones repositories at a particular version, then overlays the repository to
-the provided destination.
+the provided destination.  An alternate approach to "vendoring".
 
 What makes Gilt interesting, is the ability to overlay particular files and/or
 directories from the specified repository to given destinations.  This is quite
-helpful when working with Ansible, since libraries, plugins, and playbooks are
-often shared, but [Galaxy][1] has no mechanism to cleanly handle this.
+helpful for those using Ansible, since libraries, plugins, and playbooks are
+often shared, but Ansible's [Galaxy][1] has no mechanism to handle this.
 
 [1]: https://docs.ansible.com/ansible/latest/reference_appendices/galaxy.html
 
 ## Port
 
 This project is a port of [Gilt](http://gilt.readthedocs.io/en/latest/), it is
-not 100% compatible with the python version, and not yet complete.
+not 100% compatible with the python version, and aims to correct some poor decisions
+made in the python version of Gilt.
+
+This version of Gilt does not provide built in locking, unlike our python friend. If one
+wishes to use locking, [flock(1)](https://linux.die.net/man/1/flock) should be used.
 
 ## Installation
 
@@ -39,6 +43,7 @@ and/or directories to the desired destinations.
 - git: https://github.com/retr0h/ansible-etcd.git
   version: 77a95b7
   dstDir: roles/retr0h.ansible-etcd
+
 - git: https://github.com/lorin/openstack-ansible-modules.git
   version: 2677cc3
   sources:
