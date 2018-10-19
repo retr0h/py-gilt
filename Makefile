@@ -18,7 +18,6 @@ LDFLAGS := -s \
 		-X 'main.buildHash=$(GITCOMMIT)' \
 		-X 'main.buildDate=$(BUILDDATE)'
 BUILDDIR := .build
-export GOCACHE = off
 
 test: fmtcheck lint vet bats
 	@echo "+ $@"

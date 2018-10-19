@@ -2,9 +2,11 @@
 sudo: falseo
 language: go
 go:
-  - 1.10.x
+  - 1.11.1
 git:
   depth: 1
+env:
+  - GO111MODULE=on
 install:
   - go get golang.org/x/lint/golint
   - go get github.com/mattn/goveralls
