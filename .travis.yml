@@ -1,5 +1,5 @@
 ---
-sudo: falseo
+sudo: false
 language: go
 go:
   - 1.11.1
