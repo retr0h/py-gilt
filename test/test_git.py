@@ -28,12 +28,8 @@ import sh
 
 from gilt import git
 
-slow = pytest.mark.skipif(
-    not pytest.config.getoption("--runslow"),
-    reason="need --runslow option to run")
 
-
-@slow
+@pytest.mark.slow
 def test_clone(temp_dir):
     name = 'retr0h.ansible-etcd'
     repo = 'https://github.com/retr0h/ansible-etcd.git'
@@ -44,7 +40,7 @@ def test_clone(temp_dir):
     assert os.path.exists(destination)
 
 
-@slow
+@pytest.mark.slow
 def test_extract(temp_dir):
     name = 'retr0h.ansible-etcd'
     repo = 'https://github.com/retr0h/ansible-etcd.git'
@@ -68,7 +64,7 @@ def test_extract(temp_dir):
     assert os.path.exists(giltfile)
 
 
-@slow
+@pytest.mark.slow
 def test_overlay(mocker, temp_dir):
     name = 'lorin.openstack-ansible-modules'
     repo = 'https://github.com/lorin/openstack-ansible-modules.git'
@@ -99,7 +95,7 @@ def test_overlay(mocker, temp_dir):
     assert 2 == len(glob.glob('{}/*'.format(os.path.join(dst_dir, 'tests'))))
 
 
-@slow
+@pytest.mark.slow
 def test_overlay_existing_directory(mocker, temp_dir):
     name = 'lorin.openstack-ansible-modules'
     repo = 'https://github.com/lorin/openstack-ansible-modules.git'
@@ -208,7 +204,7 @@ def test_get_version_needs_pull(mocker, patched_run_command):
     assert expected == patched_run_command.mock_calls
 
 
-@slow
+@pytest.mark.slow
 def test_has_version(temp_dir):
     name = 'retr0h.ansible-etcd'
     repo = 'https://github.com/retr0h/ansible-etcd.git'
