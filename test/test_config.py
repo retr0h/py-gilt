@@ -32,13 +32,14 @@ from gilt import config
 def test_config(gilt_config_file):
     result = config.config(gilt_config_file)
     os_split = pytest.helpers.os_split
+    gilt_root = os.path.basename(config.BASE_WORKING_DIR)
 
     r = result[0]
     assert 'https://github.com/retr0h/ansible-etcd.git' == r.git
     assert 'master' == r.version
     assert 'retr0h.ansible-etcd' == r.name
-    assert ('.gilt', 'clone', 'retr0h.ansible-etcd') == os_split(r.src)[-3:]
-    assert ('.gilt', 'lock',
+    assert (gilt_root, 'clone', 'retr0h.ansible-etcd') == os_split(r.src)[-3:]
+    assert (gilt_root, 'lock',
             'retr0h.ansible-etcd') == os_split(r.lock_file)[-3:]
     assert ('roles', 'retr0h.ansible-etcd', '') == os_split(r.dst)[-3:]
     assert [] == r.files
@@ -51,7 +52,7 @@ def test_config(gilt_config_file):
     assert r.dst is None
 
     f = r.files[0]
-    x = ('.gilt', 'clone', 'lorin.openstack-ansible-modules', '*_manage')
+    x = (gilt_root, 'clone', 'lorin.openstack-ansible-modules', '*_manage')
     assert x == os_split(f.src)[-4:]
     assert ('library', '') == os_split(f.dst)[-2:]
 
@@ -189,8 +190,8 @@ def test_get_dst_dir(temp_dir):
 
 def test_get_clone_dir():
     parts = pytest.helpers.os_split(config._get_clone_dir())
-
-    assert ('.gilt', 'clone') == parts[-2:]
+    gilt_root = os.path.basename(config.BASE_WORKING_DIR)
+    assert (gilt_root, 'clone') == parts[-2:]
 
 
 def test_makedirs(temp_dir):
