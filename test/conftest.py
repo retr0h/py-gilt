@@ -56,7 +56,7 @@ def gilt_config_file(temp_dir, request):
     fixture = request.param
     d = temp_dir
     c = d.join(os.extsep.join(('gilt', 'yml')))
-    c.write(request.getfuncargvalue(fixture))
+    c.write(request.getfixturevalue(fixture))
 
     return c.strpath
 
