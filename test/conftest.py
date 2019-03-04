@@ -34,8 +34,8 @@ def pytest_addoption(parser):
     parser.addoption("--runslow", action="store_true", help="run slow tests")
 
 
-def random_string(l=5):
-    return ''.join(random.choice(string.ascii_uppercase) for _ in range(l))
+def random_string(len=5):
+    return ''.join(random.choice(string.ascii_uppercase) for _ in range(len))
 
 
 @pytest.fixture()
