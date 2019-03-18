@@ -46,6 +46,27 @@ def clone(name, repository, destination, debug=False):
     util.run_command(cmd, debug=debug)
 
 
+def checkout(name, destination, version, debug=False):
+    os.chdir(destination)
+    msg = '  - checking out {} at {}'.format(name, version)
+    util.print_info(msg)
+    cmd = sh.git.bake('checkout', version)
+    util.run_command(cmd, debug=debug)
+
+
+def remote_add(destination, name, url, debug=False):
+    os.chdir(destination)
+    msg = '  - adding {} remote with url {}'.format(name, url)
+    util.print_info(msg)
+    try:
+        cmd = sh.git.bake('remote', 'remove', name)
+        util.run_command(cmd, debug=debug)
+    except sh.ErrorReturnCode:
+        pass
+    cmd = sh.git.bake('remote', 'add', name, url)
+    util.run_command(cmd, debug=debug)
+
+
 def extract(repository, destination, version, debug=False):
     """
     Extract the specified repository/version into the given directory and

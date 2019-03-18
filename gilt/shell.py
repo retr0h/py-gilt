@@ -67,24 +67,43 @@ def overlay(ctx):  # pragma: no cover
     for c in config.config(filename):
         with fasteners.InterProcessLock(c.lock_file):
             util.print_info('{}:'.format(c.name))
-            if not os.path.exists(c.src):
-                git.clone(c.name, c.git, c.src, debug=debug)
-            if c.dst:
-                git.extract(c.src, c.dst, c.version, debug=debug)
-                post_commands = {c.dst: c.post_commands}
-            else:
-                git.overlay(c.src, c.files, c.version, debug=debug)
-                post_commands = {
-                    conf.dst: conf.post_commands
-                    for conf in c.files
-                }
-            # Run post commands if any.
-            for dst, commands in post_commands.items():
-                for command in commands:
-                    msg = '  - running `{}` in {}'.format(command, dst)
+            if c.devel:
+                if (not os.path.exists(c.dst + '/.git')
+                        and not os.listdir(c.dst)):
+                    git.clone(c.name, c.git, c.dst, debug=debug)
+                elif not os.path.exists(c.dst + '/.git'):
+                    msg = '    {} not a git repository, skipping'
+                    msg = msg.format(c.dst)
+                    util.print_warn(msg)
+                    continue
+                else:
+                    msg = '  - already cloned {} at {}'.format(c.name, c.dst)
                     util.print_info(msg)
-                    cmd = util.build_sh_cmd(command, cwd=dst)
-                    util.run_command(cmd, debug=debug)
+
+                git.checkout(c.name, c.dst, c.version, debug=debug)
+
+                for remote in c.remotes:
+                    git.remote_add(c.dst, remote.name, remote.url, debug=debug)
+            else:
+                if not os.path.exists(c.src):
+                    git.clone(c.name, c.git, c.src, debug=debug)
+                if c.dst:
+                    git.extract(c.src, c.dst, c.version, debug=debug)
+                    post_commands = {c.dst: c.post_commands}
+                else:
+                    git.overlay(c.src, c.files, c.version, debug=debug)
+                    post_commands = {
+                        conf.dst: conf.post_commands
+                        for conf in c.files
+                    }
+
+                # Run post commands if any.
+                for dst, commands in post_commands.items():
+                    for command in commands:
+                        msg = '  - running `{}` in {}'.format(command, dst)
+                        util.print_info(msg)
+                        cmd = util.build_sh_cmd(command, cwd=dst)
+                        util.run_command(cmd, debug=debug)
 
 
 def _setup(filename):
