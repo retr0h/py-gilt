@@ -64,6 +64,8 @@ def remote_add(destination, name, url, debug=False):
         pass
     cmd = sh.git.bake('remote', 'add', name, url)
     util.run_command(cmd, debug=debug)
+    cmd = sh.git.bake('fetch', name)
+    util.run_command(cmd, debug=debug)
 
 
 def extract(repository, destination, version, debug=False):
