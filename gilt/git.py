@@ -155,7 +155,7 @@ def _get_version(version, clean=True, debug=False):
             util.run_command(cmd, debug=debug)
         except sh.ErrorReturnCode:
             msg = '  - pulling {} failed, local changes exist?'
-            sh.print_warn(msg)
+            util.print_warn(msg)
 
 
 def _has_commit(version, debug=False):
