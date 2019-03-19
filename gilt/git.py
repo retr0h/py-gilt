@@ -154,7 +154,7 @@ def _get_version(version, clean=True, debug=False):
             cmd = sh.git.bake('pull', rebase=True, ff_only=True)
             util.run_command(cmd, debug=debug)
         except sh.ErrorReturnCode:
-            msg = '  - pulling {} failed, local changes exist?'
+            msg = '  - pulling failed, local changes exist?'
             util.print_warn(msg)
 
 
