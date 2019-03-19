@@ -79,6 +79,7 @@ def overlay(ctx):  # pragma: no cover
                     continue
 
                 git.sync(c.name, c.dst, c.version, debug=debug)
+                git.remote_add(c.dst, 'origin', c.git, debug=debug)
 
                 for remote in c.remotes:
                     git.remote_add(c.dst, remote.name, remote.url, debug=debug)
