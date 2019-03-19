@@ -124,7 +124,7 @@ def _get_version(version, debug=False):
             version, debug))):
         cmd = sh.git.bake('fetch')
         util.run_command(cmd, debug=debug)
-    cmd = sh.git.bake('checkout', version)
+    cmd = sh.git.bake('checkout', version, '--')
     util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('clean', '-d', '-x', '-f')
     util.run_command(cmd, debug=debug)
