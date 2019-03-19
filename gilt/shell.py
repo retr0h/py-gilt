@@ -68,19 +68,15 @@ def overlay(ctx):  # pragma: no cover
         with fasteners.InterProcessLock(c.lock_file):
             util.print_info('{}:'.format(c.name))
             if c.devel:
-                if (not os.path.exists(c.dst + '/.git')
-                        and not os.listdir(c.dst)):
-                    git.clone(c.name, c.git, c.dst, debug=debug)
-                elif not os.path.exists(c.dst + '/.git'):
+                if os.listdir(c.dst) and not os.path.exists(c.dst + '/.git'):
                     msg = '    {} not a git repository, skipping'
                     msg = msg.format(c.dst)
                     util.print_warn(msg)
                     continue
-                else:
-                    msg = '  - already cloned {} at {}'.format(c.name, c.dst)
-                    util.print_info(msg)
+                elif not os.listdir(c.dst):
+                    git.clone(c.name, c.git, c.dst, debug=debug)
 
-                git.checkout(c.name, c.dst, c.version, debug=debug)
+                git.sync(c.name, c.dst, c.version, debug=debug)
 
                 for remote in c.remotes:
                     git.remote_add(c.dst, remote.name, remote.url, debug=debug)

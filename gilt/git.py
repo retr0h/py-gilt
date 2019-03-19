@@ -46,12 +46,11 @@ def clone(name, repository, destination, debug=False):
     util.run_command(cmd, debug=debug)
 
 
-def checkout(name, destination, version, debug=False):
+def sync(name, destination, version, debug=False):
     os.chdir(destination)
-    msg = '  - checking out {} at {}'.format(name, version)
+    msg = "  - syncing {} with {} of origin".format(name, version)
     util.print_info(msg)
-    cmd = sh.git.bake('checkout', version)
-    util.run_command(cmd, debug=debug)
+    _get_version(version, clean=False, debug=debug)
 
 
 def remote_add(destination, name, url, debug=False):
@@ -86,7 +85,7 @@ def extract(repository, destination, version, debug=False):
             shutil.rmtree(destination)
 
         os.chdir(repository)
-        _get_version(version, debug)
+        _get_version(version, debug=debug)
         cmd = sh.git.bake(
             'checkout-index', force=True, all=True, prefix=destination)
         util.run_command(cmd, debug=debug)
@@ -109,7 +108,7 @@ def overlay(repository, files, version, debug=False):
     """
     with util.saved_cwd():
         os.chdir(repository)
-        _get_version(version, debug)
+        _get_version(version, debug=debug)
 
         for fc in files:
             if '*' in fc.src:
@@ -127,7 +126,7 @@ def overlay(repository, files, version, debug=False):
                 util.print_info(msg)
 
 
-def _get_version(version, debug=False):
+def _get_version(version, clean=True, debug=False):
     """
     Handle switching to the specified version and return None.
 
@@ -147,11 +146,16 @@ def _get_version(version, debug=False):
         util.run_command(cmd, debug=debug)
     cmd = sh.git.bake('checkout', version)
     util.run_command(cmd, debug=debug)
-    cmd = sh.git.bake('clean', '-d', '-x', '-f')
-    util.run_command(cmd, debug=debug)
-    if _has_branch(version, debug):
-        cmd = sh.git.bake('pull', rebase=True, ff_only=True)
+    if clean:
+        cmd = sh.git.bake('clean', '-d', '-x', '-f')
         util.run_command(cmd, debug=debug)
+    if _has_branch(version, debug):
+        try:
+            cmd = sh.git.bake('pull', rebase=True, ff_only=True)
+            util.run_command(cmd, debug=debug)
+        except sh.ErrorReturnCode:
+            msg = '  - pulling {} failed, local changes exist?'
+            sh.print_warn(msg)
 
 
 def _has_commit(version, debug=False):
