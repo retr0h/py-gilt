@@ -59,6 +59,170 @@ def test_config(gilt_config_file):
     assert ('library', '') == os_split(f.dst)[-2:]
 
 
+gilt_repos = [
+    (
+        "example.com:/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "example.com:owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "example.com:repo.git",
+        {"name": "repo", "owner": "", "hostname": "example.com"},
+    ),
+    (
+        "git+https://example.com/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "git+ssh://example.com/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "git+ssh://git@git.example.com/~philip.sd6/test.repo.git",
+        {
+            "name": "test.repo",
+            "owner": "philip.sd6",
+            "hostname": "git.example.com",
+        },
+    ),
+    (
+        "git://example.com/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "http://example.com/owner/repo",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "http://example.com/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "http://example.com/repo",
+        {"name": "repo", "owner": "", "hostname": "example.com"},
+    ),
+    (
+        "http://example.com:29418/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "http://user@example.com/user/repo",
+        {"name": "repo", "owner": "user", "hostname": "example.com"},
+    ),
+    (
+        "http://user@example.com:29418/user/repo",
+        {"name": "repo", "owner": "user", "hostname": "example.com"},
+    ),
+    (
+        "https://example.com/git/scm/project/my-sample.repo.git",
+        {
+            "name": "my-sample.repo",
+            "owner": "project",
+            "hostname": "example.com",
+        },
+    ),
+    (
+        "https://example.com/git/scm/~philip.sd6/my-sample.repo.git",
+        {
+            "name": "my-sample.repo",
+            "owner": "philip.sd6",
+            "hostname": "example.com",
+        },
+    ),
+    (
+        "https://example.com/owner/repo",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "https://example.com/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "https://example.com/repo",
+        {"name": "repo", "owner": "", "hostname": "example.com"},
+    ),
+    (
+        "https://example.com:29418/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "https://github.com/sphinx-doc/sphinx.git",
+        {"name": "sphinx", "owner": "sphinx-doc", "hostname": "github.com"},
+    ),
+    (
+        "https://github.com/tterranigma/Stouts.openvpn",
+        {
+            "name": "Stouts.openvpn",
+            "owner": "tterranigma",
+            "hostname": "github.com",
+        },
+    ),
+    (
+        "https://github.com/tterranigma/Stouts.openvpn.git",
+        {
+            "name": "Stouts.openvpn",
+            "owner": "tterranigma",
+            "hostname": "github.com",
+        },
+    ),
+    (
+        "https://user@example.com/user/repo",
+        {"name": "repo", "owner": "user", "hostname": "example.com"},
+    ),
+    (
+        "https://user@example.com:29418/user/repo",
+        {"name": "repo", "owner": "user", "hostname": "example.com"},
+    ),
+    (
+        "rsync://example.com/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "ssh://example.com/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "ssh://example.com:29418/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "ssh://user@example.com/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "ssh://user@example.com:29418/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "user@example.com:/owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "user@example.com:owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "example.com"},
+    ),
+    (
+        "user@example.com:repo.git",
+        {"name": "repo", "owner": "", "hostname": "example.com"},
+    ),
+    (
+        "user@foo-example.com:owner/repo.git",
+        {"name": "repo", "owner": "owner", "hostname": "foo-example.com"},
+    ),
+]
+
+
+@pytest.mark.parametrize('uri,expected', gilt_repos)
+def test_config_repo(uri, expected):
+    parsedrepo = config._parse_repo_uri(uri)
+    assert parsedrepo.hostname == expected['hostname']
+    assert parsedrepo.owner == expected['owner']
+    assert parsedrepo.name == expected['name']
+
+
 @pytest.fixture()
 def missing_git_key_data():
     return [{'foo': 'https://github.com/retr0h/ansible-etcd.git'}]
