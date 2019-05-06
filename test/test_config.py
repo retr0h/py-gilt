@@ -38,9 +38,10 @@ def test_config(gilt_config_file):
     assert 'https://github.com/retr0h/ansible-etcd.git' == r.git
     assert 'master' == r.version
     assert 'retr0h.ansible-etcd' == r.name
-    assert (gilt_root, 'clone', 'retr0h.ansible-etcd') == os_split(r.src)[-3:]
-    assert (gilt_root, 'lock',
-            'retr0h.ansible-etcd') == os_split(r.lock_file)[-3:]
+    assert (gilt_root, 'clone', 'github.com',
+            'retr0h.ansible-etcd') == os_split(r.src)[-4:]
+    assert (gilt_root, 'lock', 'github.com',
+            'retr0h.ansible-etcd') == os_split(r.lock_file)[-4:]
     assert ('roles', 'retr0h.ansible-etcd', '') == os_split(r.dst)[-3:]
     assert [] == r.files
 
@@ -52,8 +53,9 @@ def test_config(gilt_config_file):
     assert r.dst is None
 
     f = r.files[0]
-    x = (gilt_root, 'clone', 'lorin.openstack-ansible-modules', '*_manage')
-    assert x == os_split(f.src)[-4:]
+    x = (gilt_root, 'clone', 'github.com',
+         'lorin.openstack-ansible-modules', '*_manage')
+    assert x == os_split(f.src)[-5:]
     assert ('library', '') == os_split(f.dst)[-2:]
 
 
