@@ -16,6 +16,10 @@ gilt
 
 gilt - A GIT layering tool.
 
+.. image:: asset/glitched_logo.gif
+   :target: Logo
+   :alt: Logo
+
 Quick Start
 ===========
 
