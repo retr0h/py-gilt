@@ -43,6 +43,7 @@ class NotFoundError(Exception):
     "--config",
     default="gilt.yml",
     help="Path to config file.  Default gilt.yml",
+    type=click.File('r'),
 )
 @click.option(
     "--debug/--no-debug",
@@ -71,7 +72,7 @@ def main(ctx, config, debug):  # pragma: no cover
     ctx.obj = {}
     ctx.obj["args"] = {}
     ctx.obj["args"]["debug"] = debug
-    ctx.obj["args"]["config"] = config
+    ctx.obj["args"]["config"] = config.name
 
 
 @click.command()
