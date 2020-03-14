@@ -104,17 +104,20 @@ def test_copy_raises(temp_dir):
 
 
 def test_build_sh_cmd_simple_command():
+    ls = sh.ls.bake()
     cmd = util.build_sh_cmd("ls")
-    assert b"/bin/ls" == cmd._path
+    assert ls == cmd._path.decode()
 
 
 def test_build_sh_cmd_command_with_args():
+    ls = sh.ls.bake()
     cmd = util.build_sh_cmd("ls /tmp")
-    assert b"/bin/ls" == cmd._path
+    assert ls == cmd._path.decode()
     assert [b"/tmp"] == cmd._partial_baked_args
 
 
 def test_build_sh_cmd_command_with_cwd(temp_dir):
+    ls = sh.ls.bake()
     cmd = util.build_sh_cmd("ls", cwd=temp_dir)
-    assert b"/bin/ls" == cmd._path
+    assert ls == cmd._path.decode()
     assert temp_dir == cmd._partial_call_args["cwd"]
