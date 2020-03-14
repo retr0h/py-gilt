@@ -2,6 +2,19 @@
 History
 *******
 
+1.2.3.
+===
+
+* Add bitbucket support.
+* Add CI.
+* Correct hard coded paths in tests.
+* Remove black skip-string-normalization.
+* Add coverage.
+* Switched to setuptools vs pbr.
+* Switched to black off yapf.
+* Added hacking for extra lint.
+* Corrected docstrings.
+
 1.2.2
 =====
 
