@@ -31,7 +31,7 @@ Tag the release and push to github.com
 
 .. code-block:: bash
 
-    $ git tag 2.0.0
+    $ git tag v2.0.0
     $ git push --tags
 
 Upload to `PyPI`_
