@@ -38,11 +38,13 @@ def random_string(len=5):
 
 @pytest.fixture()
 def temp_dir(tmpdir, request):
+    _cwd = os.getcwd()
     d = tmpdir.mkdir(random_string())
     os.chdir(d.strpath)
 
     def cleanup():
         shutil.rmtree(d.strpath)
+        os.chdir(_cwd)
 
     request.addfinalizer(cleanup)
 
