@@ -66,11 +66,9 @@ def _parse_repo_uri(uri, scm="git"):
     :param uri: A SCM repository URI.
     :return: ParsedRepo
     """
-    ParsedRepo = collections.namedtuple('ParsedRepo', [
-        'hostname',
-        'owner',
-        'name'
-    ])
+    ParsedRepo = collections.namedtuple(
+        "ParsedRepo", ["hostname", "owner", "name"]
+    )
 
     scm_ext = "." + scm
     o = urllib.parse.urlparse(uri)
@@ -79,13 +77,13 @@ def _parse_repo_uri(uri, scm="git"):
         o = urllib.parse.urlparse(uri)
     path = o.path
     if path.endswith(scm_ext):
-        path = path[0:-len(scm_ext)]
+        path = path[0 : -len(scm_ext)]
     try:
         name, owner = path.rsplit("/", 2)[-1:-3:-1]
         owner = owner.lstrip("~")
     except ValueError:
         # if repo is the root of the path, then there is no owner
-        owner = ''
+        owner = ""
 
     return ParsedRepo(o.hostname, owner, name)
 
@@ -114,29 +112,29 @@ def _get_config_generator(filename):
     :return: dict
     """
     for d in _get_config(filename):
-        repo = d['git']
+        repo = d["git"]
         parsedrepo = _parse_repo_uri(repo)
         if parsedrepo.owner:
-            name = '{}.{}'.format(parsedrepo.owner, parsedrepo.name)
+            name = "{}.{}".format(parsedrepo.owner, parsedrepo.name)
         else:
             name = parsedrepo.name
         src_dir = os.path.join(_get_clone_dir(), parsedrepo.hostname, name)
-        files = d.get('files')
-        post_commands = d.get('post_commands', [])
+        files = d.get("files")
+        post_commands = d.get("post_commands", [])
         dst_dir = None
         if not files:
             dst_dir = _get_dst_dir(d["dst"])
         yield {
-            'git': repo,
-            'lock_file': os.path.join(
+            "git": repo,
+            "lock_file": os.path.join(
                 _get_lock_dir(), parsedrepo.hostname, name
             ),
-            'version': d['version'],
-            'name': name,
-            'src': src_dir,
-            'dst': dst_dir,
-            'files': _get_files_config(src_dir, files),
-            'post_commands': post_commands,
+            "version": d["version"],
+            "name": name,
+            "src": src_dir,
+            "dst": dst_dir,
+            "files": _get_files_config(src_dir, files),
+            "post_commands": post_commands,
         }
 
 
