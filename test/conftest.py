@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (c) 2016 Cisco Systems, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,7 +25,7 @@ import string
 
 import pytest
 
-pytest_plugins = ['helpers_namespace']
+pytest_plugins = ["helpers_namespace"]
 
 
 def pytest_addoption(parser):
@@ -35,7 +33,7 @@ def pytest_addoption(parser):
 
 
 def random_string(len=5):
-    return ''.join(random.choice(string.ascii_uppercase) for _ in range(len))
+    return "".join(random.choice(string.ascii_uppercase) for _ in range(len))
 
 
 @pytest.fixture()
@@ -55,7 +53,7 @@ def temp_dir(tmpdir, request):
 def gilt_config_file(temp_dir, request):
     fixture = request.param
     d = temp_dir
-    c = d.join(os.extsep.join(('gilt', 'yml')))
+    c = d.join(os.extsep.join(("gilt", "yml")))
     c.write(request.getfixturevalue(fixture))
 
     return c.strpath
@@ -63,24 +61,24 @@ def gilt_config_file(temp_dir, request):
 
 @pytest.fixture()
 def gilt_data():
-    return [{
-        'git': 'https://github.com/retr0h/ansible-etcd.git',
-        'version': 'master',
-        'dst': 'roles/retr0h.ansible-etcd/'
-    }, {
-        'git': 'https://github.com/lorin/openstack-ansible-modules.git',
-        'version': 'master',
-        'files': [{
-            'src': '*_manage',
-            'dst': 'library/'
-        }]
-    }]
+    return [
+        {
+            "git": "https://github.com/retr0h/ansible-etcd.git",
+            "version": "master",
+            "dst": "roles/retr0h.ansible-etcd/",
+        },
+        {
+            "git": "https://github.com/lorin/openstack-ansible-modules.git",
+            "version": "master",
+            "files": [{"src": "*_manage", "dst": "library/"}],
+        },
+    ]
 
 
 @pytest.helpers.register
 def os_split(s):
     rest, tail = os.path.split(s)
-    if rest in ('', os.path.sep):
-        return tail,
+    if rest in ("", os.path.sep):
+        return (tail,)
 
-    return os_split(rest) + (tail, )
+    return os_split(rest) + (tail,)

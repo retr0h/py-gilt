@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (c) 2016 Cisco Systems, Inc.
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,8 +28,7 @@ from gilt import util
 
 
 def clone(name, repository, destination, debug=False):
-    """
-    Clone the specified repository into a temporary directory and return None.
+    """Clone the specified repository into a temporary directory and return None.
 
     :param name: A string containing the name of the repository being cloned.
     :param repository: A string containing the repository to clone.
@@ -40,16 +37,14 @@ def clone(name, repository, destination, debug=False):
     :param debug: An optional bool to toggle debug output.
     :return: None
     """
-    msg = '  - cloning {} to {}'.format(name, destination)
+    msg = "  - cloning {} to {}".format(name, destination)
     util.print_info(msg)
-    cmd = sh.git.bake('clone', repository, destination)
+    cmd = sh.git.bake("clone", repository, destination)
     util.run_command(cmd, debug=debug)
 
 
 def extract(repository, destination, version, debug=False):
-    """
-    Extract the specified repository/version into the given directory and
-    return None.
+    """Extract the specified repository/version into the directory and return None.
 
     :param repository: A string containing the path to the repository to be
      extracted.
@@ -67,17 +62,17 @@ def extract(repository, destination, version, debug=False):
         os.chdir(repository)
         _get_version(version, debug)
         cmd = sh.git.bake(
-            'checkout-index', force=True, all=True, prefix=destination)
+            "checkout-index", force=True, all=True, prefix=destination
+        )
         util.run_command(cmd, debug=debug)
-        msg = '  - extracting ({}) {} to {}'.format(version, repository,
-                                                    destination)
+        msg = "  - extracting ({}) {} to {}".format(
+            version, repository, destination
+        )
         util.print_info(msg)
 
 
 def overlay(repository, files, version, debug=False):
-    """
-    Overlay files from the specified repository/version into the given
-    directory and return None.
+    """Overlay files from repository/version into the directory and return None.
 
     :param repository: A string containing the path to the repository to be
      extracted.
@@ -91,24 +86,25 @@ def overlay(repository, files, version, debug=False):
         _get_version(version, debug)
 
         for fc in files:
-            if '*' in fc.src:
+            if "*" in fc.src:
                 for filename in glob.glob(fc.src):
                     util.copy(filename, fc.dst)
-                    msg = '  - copied ({}) {} to {}'.format(
-                        version, filename, fc.dst)
+                    msg = "  - copied ({}) {} to {}".format(
+                        version, filename, fc.dst
+                    )
                     util.print_info(msg)
             else:
                 if os.path.isdir(fc.dst) and os.path.isdir(fc.src):
                     shutil.rmtree(fc.dst)
                 util.copy(fc.src, fc.dst)
-                msg = '  - copied ({}) {} to {}'.format(
-                    version, fc.src, fc.dst)
+                msg = "  - copied ({}) {} to {}".format(
+                    version, fc.src, fc.dst
+                )
                 util.print_info(msg)
 
 
 def _get_version(version, debug=False):
-    """
-    Handle switching to the specified version and return None.
+    """Handle switching to the specified version and return None.
 
     1. Fetch the origin.
     2. Checkout the specified version.
@@ -120,22 +116,25 @@ def _get_version(version, debug=False):
     :return: None
     """
     if not any(
-        (_has_branch(version, debug), _has_tag(version, debug), _has_commit(
-            version, debug))):
-        cmd = sh.git.bake('fetch')
+        (
+            _has_branch(version, debug),
+            _has_tag(version, debug),
+            _has_commit(version, debug),
+        )
+    ):
+        cmd = sh.git.bake("fetch")
         util.run_command(cmd, debug=debug)
-    cmd = sh.git.bake('checkout', version)
+    cmd = sh.git.bake("checkout", version)
     util.run_command(cmd, debug=debug)
-    cmd = sh.git.bake('clean', '-d', '-x', '-f')
+    cmd = sh.git.bake("clean", "-d", "-x", "-f")
     util.run_command(cmd, debug=debug)
     if _has_branch(version, debug):
-        cmd = sh.git.bake('pull', rebase=True, ff_only=True)
+        cmd = sh.git.bake("pull", rebase=True, ff_only=True)
         util.run_command(cmd, debug=debug)
 
 
 def _has_commit(version, debug=False):
-    """
-    Determine a version is a local git commit sha or not.
+    """Determine a version is a local git commit sha or not.
 
     :param version: A string containing the branch/tag/sha to be determined.
     :param debug: An optional bool to toggle debug output.
@@ -143,7 +142,7 @@ def _has_commit(version, debug=False):
     """
     if _has_tag(version, debug) or _has_branch(version, debug):
         return False
-    cmd = sh.git.bake('cat-file', '-e', version)
+    cmd = sh.git.bake("cat-file", "-e", version)
     try:
         util.run_command(cmd, debug=debug)
         return True
@@ -152,15 +151,15 @@ def _has_commit(version, debug=False):
 
 
 def _has_tag(version, debug=False):
-    """
-    Determine a version is a local git tag name or not.
+    """Determine a version is a local git tag name or not.
 
     :param version: A string containing the branch/tag/sha to be determined.
     :param debug: An optional bool to toggle debug output.
     :return: bool
     """
-    cmd = sh.git.bake('show-ref', '--verify', '--quiet',
-                      "refs/tags/{}".format(version))
+    cmd = sh.git.bake(
+        "show-ref", "--verify", "--quiet", "refs/tags/{}".format(version)
+    )
     try:
         util.run_command(cmd, debug=debug)
         return True
@@ -169,15 +168,15 @@ def _has_tag(version, debug=False):
 
 
 def _has_branch(version, debug=False):
-    """
-    Determine a version is a local git branch name or not.
+    """Determine a version is a local git branch name or not.
 
     :param version: A string containing the branch/tag/sha to be determined.
     :param debug: An optional bool to toggle debug output.
     :return: bool
     """
-    cmd = sh.git.bake('show-ref', '--verify', '--quiet',
-                      "refs/heads/{}".format(version))
+    cmd = sh.git.bake(
+        "show-ref", "--verify", "--quiet", "refs/heads/{}".format(version)
+    )
     try:
         util.run_command(cmd, debug=debug)
         return True

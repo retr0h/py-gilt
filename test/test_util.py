@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (c) 2016 Cisco Systems, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,17 +27,17 @@ from gilt import util
 
 
 def test_print_info(capsys):
-    util.print_info('foo')
+    util.print_info("foo")
 
     result, _ = capsys.readouterr()
-    assert 'foo\n' == result
+    assert "foo\n" == result
 
 
 def test_print_warn(capsys):
-    util.print_warn('foo')
+    util.print_warn("foo")
 
     result, _ = capsys.readouterr()
-    assert 'foo' in result
+    assert "foo" in result
 
 
 def test_run_command(capsys):
@@ -47,7 +45,7 @@ def test_run_command(capsys):
     util.run_command(cmd)
 
     result, _ = capsys.readouterr()
-    assert '' == result
+    assert "" == result
 
 
 def test_run_command_with_debug(temp_dir, capsys):
@@ -55,14 +53,14 @@ def test_run_command_with_debug(temp_dir, capsys):
     util.run_command(cmd, debug=True)
 
     result, _ = capsys.readouterr()
-    x = 'COMMAND: {} --version'.format(sh.git)
+    x = "COMMAND: {} --version".format(sh.git)
     assert x in result
-    x = 'PWD: {}'.format(temp_dir)
+    x = "PWD: {}".format(temp_dir)
     assert x in result
 
 
 def test_saved_cwd_contextmanager(temp_dir):
-    workdir = os.path.join(temp_dir.strpath, 'workdir')
+    workdir = os.path.join(temp_dir.strpath, "workdir")
 
     os.mkdir(workdir)
 
@@ -74,27 +72,27 @@ def test_saved_cwd_contextmanager(temp_dir):
 
 
 def test_copy_file(temp_dir):
-    dst_dir = os.path.join(temp_dir.strpath, 'dst')
+    dst_dir = os.path.join(temp_dir.strpath, "dst")
 
     os.mkdir(dst_dir)
 
-    src = os.path.join(temp_dir.strpath, 'foo')
-    open(src, 'a').close()
+    src = os.path.join(temp_dir.strpath, "foo")
+    open(src, "a").close()
 
     util.copy(src, dst_dir)
 
-    dst = os.path.join(dst_dir, 'foo')
+    dst = os.path.join(dst_dir, "foo")
     assert os.path.exists(dst)
 
 
 def test_copy_dir(temp_dir):
-    src_dir = os.path.join(temp_dir.strpath, 'src')
-    dst_dir = os.path.join(temp_dir.strpath, 'dst')
+    src_dir = os.path.join(temp_dir.strpath, "src")
+    dst_dir = os.path.join(temp_dir.strpath, "dst")
 
     os.mkdir(src_dir)
     os.mkdir(dst_dir)
 
-    d = os.path.join(dst_dir, 'src')
+    d = os.path.join(dst_dir, "src")
     util.copy(src_dir, d)
 
     assert os.path.exists(d)
@@ -102,21 +100,21 @@ def test_copy_dir(temp_dir):
 
 def test_copy_raises(temp_dir):
     with pytest.raises(OSError):
-        util.copy('invalid-src', 'invalid-dst')
+        util.copy("invalid-src", "invalid-dst")
 
 
 def test_build_sh_cmd_simple_command():
-    cmd = util.build_sh_cmd('ls')
-    assert b'/bin/ls' == cmd._path
+    cmd = util.build_sh_cmd("ls")
+    assert b"/bin/ls" == cmd._path
 
 
 def test_build_sh_cmd_command_with_args():
-    cmd = util.build_sh_cmd('ls /tmp')
-    assert b'/bin/ls' == cmd._path
-    assert [b'/tmp'] == cmd._partial_baked_args
+    cmd = util.build_sh_cmd("ls /tmp")
+    assert b"/bin/ls" == cmd._path
+    assert [b"/tmp"] == cmd._partial_baked_args
 
 
 def test_build_sh_cmd_command_with_cwd(temp_dir):
-    cmd = util.build_sh_cmd('ls', cwd=temp_dir)
-    assert b'/bin/ls' == cmd._path
-    assert temp_dir == cmd._partial_call_args['cwd']
+    cmd = util.build_sh_cmd("ls", cwd=temp_dir)
+    assert b"/bin/ls" == cmd._path
+    assert temp_dir == cmd._partial_call_args["cwd"]

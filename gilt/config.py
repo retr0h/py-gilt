@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (c) 2016 Cisco Systems, Inc.
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,45 +29,48 @@ from gilt import interpolation
 
 
 class ParseError(Exception):
-    """ Error raised when a config can't be loaded properly. """
+    """Error raised when a config can't be loaded properly. """
+
     pass
 
 
-BASE_WORKING_DIR = os.environ.get('GILT_CACHE_DIRECTORY', '~/.gilt')
+BASE_WORKING_DIR = os.environ.get("GILT_CACHE_DIRECTORY", "~/.gilt")
 
 
 def config(filename):
-    """
-    Construct `Config` object and return a list.
+    """Construct `Config` object and return a list.
 
     :parse filename: A string containing the path to YAML file.
     :return: list
     """
-    Config = collections.namedtuple('Config', [
-        'git',
-        'lock_file',
-        'version',
-        'name',
-        'src',
-        'dst',
-        'files',
-        'post_commands',
-    ])
+    Config = collections.namedtuple(
+        "Config",
+        [
+            "git",
+            "lock_file",
+            "version",
+            "name",
+            "src",
+            "dst",
+            "files",
+            "post_commands",
+        ],
+    )
 
     return [Config(**d) for d in _get_config_generator(filename)]
 
 
 def _get_files_config(src_dir, files_list):
-    """
-    Construct `FileConfig` object and return a list.
+    """Construct `FileConfig` object and return a list.
 
     :param src_dir: A string containing the source directory.
     :param files_list: A list of dicts containing the src/dst mapping of files
      to overlay.
     :return: list
     """
-    FilesConfig = collections.namedtuple('FilesConfig',
-                                         ['src', 'dst', 'post_commands'])
+    FilesConfig = collections.namedtuple(
+        "FilesConfig", ["src", "dst", "post_commands"]
+    )
 
     return [
         FilesConfig(**d) for d in _get_files_generator(src_dir, files_list)
@@ -77,37 +78,35 @@ def _get_files_config(src_dir, files_list):
 
 
 def _get_config_generator(filename):
-    """
-    A generator which populates and return a dict.
+    """A generator which populates and return a dict.
 
     :parse filename: A string containing the path to YAML file.
     :return: dict
     """
     for d in _get_config(filename):
-        repo = d['git']
+        repo = d["git"]
         parsedrepo = giturlparse.parse(repo)
-        name = '{}.{}'.format(parsedrepo.owner, parsedrepo.name)
+        name = "{}.{}".format(parsedrepo.owner, parsedrepo.name)
         src_dir = os.path.join(_get_clone_dir(), name)
-        files = d.get('files')
-        post_commands = d.get('post_commands', [])
+        files = d.get("files")
+        post_commands = d.get("post_commands", [])
         dst_dir = None
         if not files:
-            dst_dir = _get_dst_dir(d['dst'])
+            dst_dir = _get_dst_dir(d["dst"])
         yield {
-            'git': repo,
-            'lock_file': _get_lock_file(name),
-            'version': d['version'],
-            'name': name,
-            'src': src_dir,
-            'dst': dst_dir,
-            'files': _get_files_config(src_dir, files),
-            'post_commands': post_commands,
+            "git": repo,
+            "lock_file": _get_lock_file(name),
+            "version": d["version"],
+            "name": name,
+            "src": src_dir,
+            "dst": dst_dir,
+            "files": _get_files_config(src_dir, files),
+            "post_commands": post_commands,
         }
 
 
 def _get_files_generator(src_dir, files_list):
-    """
-    A generator which populates and return a dict.
+    """A generator which populates and return a dict.
 
     :param src_dir: A string containing the source directory.
     :param files_list: A list of dicts containing the src/dst mapping of files
@@ -117,35 +116,33 @@ def _get_files_generator(src_dir, files_list):
     if files_list:
         for d in files_list:
             yield {
-                'src': os.path.join(src_dir, d['src']),
-                'dst': _get_dst_dir(d['dst']),
-                'post_commands': d.get('post_commands', []),
+                "src": os.path.join(src_dir, d["src"]),
+                "dst": _get_dst_dir(d["dst"]),
+                "post_commands": d.get("post_commands", []),
             }
 
 
 def _get_config(filename):
-    """
-    Parse the provided YAML file and return a dict.
+    """Parse the provided YAML file and return a dict.
 
     :parse filename: A string containing the path to YAML file.
     :return: dict
     """
-    i = interpolation.Interpolator(interpolation.TemplateWithDefaults,
-                                   os.environ)
+    i = interpolation.Interpolator(
+        interpolation.TemplateWithDefaults, os.environ
+    )
 
-    with open(filename, 'r') as stream:
+    with open(filename, "r") as stream:
         try:
             interpolated_config = i.interpolate(stream.read())
             return yaml.safe_load(interpolated_config)
         except yaml.parser.ParserError as e:
-            msg = 'Error parsing gilt config: {0}'.format(e)
+            msg = "Error parsing gilt config: {0}".format(e)
             raise ParseError(msg)
 
 
 def _get_dst_dir(dst_dir):
-    """
-    Prefix the provided string with working directory and return a
-    str.
+    """Prefix the provided string with working directory and return a str.
 
     :param dst_dir: A string to be prefixed with the working dir.
     :return: str
@@ -157,42 +154,33 @@ def _get_dst_dir(dst_dir):
 
 
 def _get_lock_file(name):
-    """ Return the lock file for the given name. """
-    return os.path.join(
-        _get_lock_dir(),
-        name, )
+    """Return the lock file for the given name. """
+    return os.path.join(_get_lock_dir(), name,)
 
 
 def _get_base_dir():
-    """ Return gilt's base working directory. """
+    """Return gilt's base working directory. """
     return os.path.expanduser(BASE_WORKING_DIR)
 
 
 def _get_lock_dir():
-    """
-    Construct gilt's lock directory and return a str.
+    """Construct gilt's lock directory and return a str.
 
     :return: str
     """
-    return os.path.join(
-        _get_base_dir(),
-        'lock', )
+    return os.path.join(_get_base_dir(), "lock",)
 
 
 def _get_clone_dir():
-    """
-    Construct gilt's clone directory and return a str.
+    """Construct gilt's clone directory and return a str.
 
     :return: str
     """
-    return os.path.join(
-        _get_base_dir(),
-        'clone', )
+    return os.path.join(_get_base_dir(), "clone",)
 
 
 def _makedirs(path):
-    """
-    Create a base directory of the provided path and return None.
+    """Create a base directory of the provided path and return None.
 
     :param path: A string containing a path to be deconstructed and basedir
      created.
