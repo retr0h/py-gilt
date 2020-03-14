@@ -2,6 +2,10 @@
 gilt
 ****
 
+.. image:: https://github.com/retr0h/gilt/workflows/Tests/badge.svg
+   :target: https://github.com/retr0h/gilt/actions
+   :alt: Actions Status
+
 .. image:: https://badge.fury.io/py/python-gilt.svg
    :target: https://badge.fury.io/py/python-gilt
    :alt: PyPI Package
