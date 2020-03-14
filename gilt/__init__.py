@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (c) 2016 Cisco Systems, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,7 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import pbr.version
+try:
+    import pkg_resources
 
-version_info = pbr.version.VersionInfo('python-gilt')  # noqa
-__version__ = version_info.release_string()
+    __version__ = pkg_resources.get_distribution("gilt").version
+except Exception:  # pragma: no cover
+    __version__ = "unknown"

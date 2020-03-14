@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (c) 2016 Cisco Systems, Inc.
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -32,41 +30,44 @@ from gilt import util
 
 
 class NotFoundError(Exception):
-    """ Error raised when a config can not be found. """
+    """Error raised when a config can not be found. """
+
     pass
 
 
 @click.group()
 @click.option(
-    '--config',
-    default='gilt.yml',
-    help='Path to config file.  Default gilt.yml')
+    "--config",
+    default="gilt.yml",
+    help="Path to config file.  Default gilt.yml",
+)
 @click.option(
-    '--debug/--no-debug',
+    "--debug/--no-debug",
     default=False,
-    help='Enable or disable debug mode. Default is disabled.')
+    help="Enable or disable debug mode. Default is disabled.",
+)
 @click.version_option(version=gilt.__version__)
 @click.pass_context
 def main(ctx, config, debug):  # pragma: no cover
-    """ gilt - A GIT layering tool. """
+    """gilt - A GIT layering tool. """
     ctx.obj = {}
-    ctx.obj['args'] = {}
-    ctx.obj['args']['debug'] = debug
-    ctx.obj['args']['config'] = config
+    ctx.obj["args"] = {}
+    ctx.obj["args"]["debug"] = debug
+    ctx.obj["args"]["config"] = config
 
 
 @click.command()
 @click.pass_context
 def overlay(ctx):  # pragma: no cover
-    """ Install gilt dependencies """
-    args = ctx.obj.get('args')
-    filename = args.get('config')
-    debug = args.get('debug')
+    """Install gilt dependencies """
+    args = ctx.obj.get("args")
+    filename = args.get("config")
+    debug = args.get("debug")
     _setup(filename)
 
     for c in config.config(filename):
         with fasteners.InterProcessLock(c.lock_file):
-            util.print_info('{}:'.format(c.name))
+            util.print_info("{}:".format(c.name))
             if not os.path.exists(c.src):
                 git.clone(c.name, c.git, c.src, debug=debug)
             if c.dst:
@@ -75,13 +76,12 @@ def overlay(ctx):  # pragma: no cover
             else:
                 git.overlay(c.src, c.files, c.version, debug=debug)
                 post_commands = {
-                    conf.dst: conf.post_commands
-                    for conf in c.files
+                    conf.dst: conf.post_commands for conf in c.files
                 }
             # Run post commands if any.
             for dst, commands in post_commands.items():
                 for command in commands:
-                    msg = '  - running `{}` in {}'.format(command, dst)
+                    msg = "  - running `{}` in {}".format(command, dst)
                     util.print_info(msg)
                     cmd = util.build_sh_cmd(command, cwd=dst)
                     util.run_command(cmd, debug=debug)
@@ -89,7 +89,7 @@ def overlay(ctx):  # pragma: no cover
 
 def _setup(filename):
     if not os.path.exists(filename):
-        msg = 'Unable to find {}. Exiting.'.format(filename)
+        msg = "Unable to find {}. Exiting.".format(filename)
         raise NotFoundError(msg)
 
     working_dirs = [config._get_lock_dir(), config._get_clone_dir()]

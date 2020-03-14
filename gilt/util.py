@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (c) 2016 Cisco Systems, Inc.
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,27 +32,26 @@ colorama.init(autoreset=True)
 
 
 def print_info(msg):
-    """ Print the given message to STDOUT. """
+    """Print the given message to STDOUT. """
     print(msg)
 
 
 def print_warn(msg):
-    """ Print the given message to STDOUT in YELLOW. """
-    print('{}{}'.format(colorama.Fore.YELLOW, msg))
+    """Print the given message to STDOUT in YELLOW. """
+    print("{}{}".format(colorama.Fore.YELLOW, msg))
 
 
 def run_command(cmd, debug=False):
-    """
-    Execute the given command and return None.
+    """Execute the given command and return None.
 
     :param cmd: A `sh.Command` object to execute.
     :param debug: An optional bool to toggle debug output.
     :return: None
     """
     if debug:
-        msg = '  PWD: {}'.format(os.getcwd())
+        msg = "  PWD: {}".format(os.getcwd())
         print_warn(msg)
-        msg = '  COMMAND: {}'.format(cmd)
+        msg = "  COMMAND: {}".format(cmd)
         print_warn(msg)
     cmd()
 
@@ -72,7 +69,7 @@ def build_sh_cmd(cmd, cwd=None):
 
 @contextlib.contextmanager
 def saved_cwd():
-    """ Context manager to restore previous working directory. """
+    """Context manager to restore previous working directory. """
     saved = os.getcwd()
     try:
         yield
@@ -81,8 +78,7 @@ def saved_cwd():
 
 
 def copy(src, dst):
-    """
-    Handle the copying of a file or directory.
+    """Handle the copying of a file or directory.
 
     The destination basedir _must_ exist.
 
