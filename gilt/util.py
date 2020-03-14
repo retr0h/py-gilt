@@ -26,6 +26,7 @@ import os
 import sh
 import shutil
 
+import click
 import colorama
 
 colorama.init(autoreset=True)
@@ -33,12 +34,12 @@ colorama.init(autoreset=True)
 
 def print_info(msg):
     """Print the given message to STDOUT. """
-    print(msg)
+    click.echo(msg)
 
 
 def print_warn(msg):
     """Print the given message to STDOUT in YELLOW. """
-    print("{}{}".format(colorama.Fore.YELLOW, msg))
+    click.echo("{}{}".format(colorama.Fore.YELLOW, msg))
 
 
 def run_command(cmd, debug=False):
