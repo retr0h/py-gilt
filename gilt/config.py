@@ -21,8 +21,8 @@
 import collections
 import errno
 import os
+import urllib.parse
 
-import giturlparse
 import yaml
 
 from gilt import interpolation
@@ -60,6 +60,36 @@ def config(filename):
     return [Config(**d) for d in _get_config_generator(filename)]
 
 
+def _parse_repo_uri(uri, scm="git"):
+    """Construct and return a `ParsedRepo` object.
+
+    :param uri: A SCM repository URI.
+    :return: ParsedRepo
+    """
+    ParsedRepo = collections.namedtuple('ParsedRepo', [
+        'hostname',
+        'owner',
+        'name'
+    ])
+
+    scm_ext = "." + scm
+    o = urllib.parse.urlparse(uri)
+    if not o.hostname:  # scp-style "URI", so fake it
+        uri = "ssh://" + uri.replace(":/", "/").replace(":", "/")
+        o = urllib.parse.urlparse(uri)
+    path = o.path
+    if path.endswith(scm_ext):
+        path = path[0:-len(scm_ext)]
+    try:
+        name, owner = path.rsplit("/", 2)[-1:-3:-1]
+        owner = owner.lstrip("~")
+    except ValueError:
+        # if repo is the root of the path, then there is no owner
+        owner = ''
+
+    return ParsedRepo(o.hostname, owner, name)
+
+
 def _get_files_config(src_dir, files_list):
     """Construct `FileConfig` object and return a list.
 
@@ -84,24 +114,29 @@ def _get_config_generator(filename):
     :return: dict
     """
     for d in _get_config(filename):
-        repo = d["git"]
-        parsedrepo = giturlparse.parse(repo)
-        name = "{}.{}".format(parsedrepo.owner, parsedrepo.name)
-        src_dir = os.path.join(_get_clone_dir(), name)
-        files = d.get("files")
-        post_commands = d.get("post_commands", [])
+        repo = d['git']
+        parsedrepo = _parse_repo_uri(repo)
+        if parsedrepo.owner:
+            name = '{}.{}'.format(parsedrepo.owner, parsedrepo.name)
+        else:
+            name = parsedrepo.name
+        src_dir = os.path.join(_get_clone_dir(), parsedrepo.hostname, name)
+        files = d.get('files')
+        post_commands = d.get('post_commands', [])
         dst_dir = None
         if not files:
             dst_dir = _get_dst_dir(d["dst"])
         yield {
-            "git": repo,
-            "lock_file": _get_lock_file(name),
-            "version": d["version"],
-            "name": name,
-            "src": src_dir,
-            "dst": dst_dir,
-            "files": _get_files_config(src_dir, files),
-            "post_commands": post_commands,
+            'git': repo,
+            'lock_file': os.path.join(
+                _get_lock_dir(), parsedrepo.hostname, name
+            ),
+            'version': d['version'],
+            'name': name,
+            'src': src_dir,
+            'dst': dst_dir,
+            'files': _get_files_config(src_dir, files),
+            'post_commands': post_commands,
         }
 
 
@@ -151,11 +186,6 @@ def _get_dst_dir(dst_dir):
     _makedirs(dst_dir)
 
     return os.path.join(wd, dst_dir)
-
-
-def _get_lock_file(name):
-    """Return the lock file for the given name. """
-    return os.path.join(_get_lock_dir(), name,)
 
 
 def _get_base_dir():
