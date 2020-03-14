@@ -2,6 +2,16 @@
 History
 *******
 
+1.2.2
+=====
+
+* Cleanup dst prior to checkout-index.
+* Fix ambigous variable usage.
+* Fixed deprecation of getfuncargvalue.
+* Remove use of deprecated pytest.config.
+* Fixed test failure with GILT_CACHE_DIRECTORY.
+* Fix tox failure due to use of relative path with --cov.
+
 1.2.1
 =====
 
