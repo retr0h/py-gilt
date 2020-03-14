@@ -21,12 +21,15 @@
 import os
 
 import click
+import click_completion
 import fasteners
 
 import gilt
 from gilt import config
 from gilt import git
 from gilt import util
+
+click_completion.init()
 
 
 class NotFoundError(Exception):
@@ -49,7 +52,22 @@ class NotFoundError(Exception):
 @click.version_option(version=gilt.__version__)
 @click.pass_context
 def main(ctx, config, debug):  # pragma: no cover
-    """gilt - A GIT layering tool. """
+    """
+    \b
+           o  o
+         o |  |
+    o--o   | -o-
+    |  | | |  |
+    o--O | o  o
+       |
+    o--o
+
+    gilt - A GIT layering tool.
+
+    Enable autocomplete issue:
+
+    eval "$(_GILT_COMPLETE=source gilt)"
+    """  # noqa: H404,H405
     ctx.obj = {}
     ctx.obj["args"] = {}
     ctx.obj["args"]["debug"] = debug
