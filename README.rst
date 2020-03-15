@@ -40,6 +40,17 @@ Documentation
 
 https://gilt.readthedocs.io/
 
+Alternatives
+============
+
+* `Repo`_
+* Git submodules
+* Git subtree
+* `Go Gilt`_ - An indirect port of Gilt to Golang (WIP)
+
+.. _`Repo`: https://gerrit.googlesource.com/git-repo/+/refs/heads/master/README.md
+.. _`Go Gilt`: https://github.com/retr0h/go-gilt
+
 License
 =======
 
