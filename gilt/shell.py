@@ -43,7 +43,7 @@ class NotFoundError(Exception):
     "--config",
     default="gilt.yml",
     help="Path to config file.  Default gilt.yml",
-    type=click.File('r'),
+    type=click.File("r"),
 )
 @click.option(
     "--debug/--no-debug",
