@@ -31,27 +31,18 @@ Tag the release and push to github.com
 
 .. code-block:: bash
 
-    $ git tag 2.0.0
+    $ git tag v2.0.0
     $ git push --tags
 
 Upload to `PyPI`_
 ^^^^^^^^^^^^^^^^^
 
-* Install `Twine`_ using `pip`.
-
-    .. code-block:: bash
-
-        $ pip install twine
-
 * Upload to  `PyPI`_.
 
     .. code-block:: bash
 
-        $ cd /path/to/gilt
-        $ rm -rf build/ dist/
-        $ python setup.py sdist bdist_wheel
-        $ twine upload dist/*
-        $ rm -rf build/ dist/
+        $ tox -e build-dists
+        $ tox -e publish-dists
 
 Post-release
 ------------
@@ -65,4 +56,3 @@ Roadmap
 
 .. _`PyPI`: https://pypi.python.org/pypi/python-gilt
 .. _`ISSUES`: https://github.com/metacloud/gilt/issues
-.. _`Twine`: https://pypi.python.org/pypi/twine

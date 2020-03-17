@@ -1,7 +1,0 @@
-click
-colorama
-fasteners
-git-url-parse
-pbr
-PyYAML
-sh

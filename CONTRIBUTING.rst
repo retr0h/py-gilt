@@ -36,7 +36,7 @@ Unit tests are invoked by `Tox`_.
 Formatting
 ==========
 
-The formatting is done using `YAPF`_.
+The formatting is done using `Black`_.
 
 From the root for the project, run:
 
@@ -44,6 +44,6 @@ From the root for the project, run:
 
     $ tox -e format
 
-.. _`YAPF`: https://github.com/google/yapf
+.. _`Black`: https://github.com/psf/black
 .. _`Tox`: https://tox.readthedocs.io/en/latest
 .. _`Issue`: https://github.com/metacloud/gilt/issues

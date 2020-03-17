@@ -1,6 +1,0 @@
-flake8
-pytest
-pytest-cov
-pytest-helpers-namespace
-pytest-mock
-yapf==0.16.3

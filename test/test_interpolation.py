@@ -19,56 +19,58 @@ from gilt import interpolation
 
 @pytest.fixture
 def mock_env():
-    return {'FOO': 'foo', 'BAR': '', 'ETCD_VERSION': 'master'}
+    return {"FOO": "foo", "BAR": "", "ETCD_VERSION": "master"}
 
 
 @pytest.fixture
 def interpolator_instance(mock_env):
-    return interpolation.Interpolator(interpolation.TemplateWithDefaults,
-                                      mock_env).interpolate
+    return interpolation.Interpolator(
+        interpolation.TemplateWithDefaults, mock_env
+    ).interpolate
 
 
 def test_escaped_interpolation(interpolator_instance):
-    assert '${foo}' == interpolator_instance('$${foo}')
+    assert "${foo}" == interpolator_instance("$${foo}")
 
 
 def test_invalid_interpolation(interpolator_instance):
     with pytest.raises(interpolation.InvalidInterpolation):
-        interpolator_instance('${')
+        interpolator_instance("${")
     with pytest.raises(interpolation.InvalidInterpolation):
-        interpolator_instance('$}')
+        interpolator_instance("$}")
     with pytest.raises(interpolation.InvalidInterpolation):
-        interpolator_instance('${}')
+        interpolator_instance("${}")
     with pytest.raises(interpolation.InvalidInterpolation):
-        interpolator_instance('${ }')
+        interpolator_instance("${ }")
     with pytest.raises(interpolation.InvalidInterpolation):
-        interpolator_instance('${ foo}')
+        interpolator_instance("${ foo}")
     with pytest.raises(interpolation.InvalidInterpolation):
-        interpolator_instance('${foo }')
+        interpolator_instance("${foo }")
     with pytest.raises(interpolation.InvalidInterpolation):
-        interpolator_instance('${foo!}')
+        interpolator_instance("${foo!}")
 
 
 def test_interpolate_missing_no_default(interpolator_instance):
-    assert 'This  var' == interpolator_instance('This ${missing} var')
-    assert 'This  var' == interpolator_instance('This ${BAR} var')
+    assert "This  var" == interpolator_instance("This ${missing} var")
+    assert "This  var" == interpolator_instance("This ${BAR} var")
 
 
 def test_interpolate_with_value(interpolator_instance):
-    assert 'This foo var' == interpolator_instance('This $FOO var')
-    assert 'This foo var' == interpolator_instance('This ${FOO} var')
+    assert "This foo var" == interpolator_instance("This $FOO var")
+    assert "This foo var" == interpolator_instance("This ${FOO} var")
 
 
 def test_interpolate_missing_with_default(interpolator_instance):
-    assert 'ok def' == interpolator_instance('ok ${missing:-def}')
-    assert 'ok def' == interpolator_instance('ok ${missing-def}')
-    assert 'ok /non:-alphanumeric' == interpolator_instance(
-        'ok ${BAR:-/non:-alphanumeric}')
+    assert "ok def" == interpolator_instance("ok ${missing:-def}")
+    assert "ok def" == interpolator_instance("ok ${missing-def}")
+    assert "ok /non:-alphanumeric" == interpolator_instance(
+        "ok ${BAR:-/non:-alphanumeric}"
+    )
 
 
 def test_interpolate_with_empty_and_default_value(interpolator_instance):
-    assert 'ok def' == interpolator_instance('ok ${BAR:-def}')
-    assert 'ok ' == interpolator_instance('ok ${BAR-def}')
+    assert "ok def" == interpolator_instance("ok ${BAR:-def}")
+    assert "ok " == interpolator_instance("ok ${BAR-def}")
 
 
 def test_interpolate_with_gilt_yaml(interpolator_instance):

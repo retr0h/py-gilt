@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (c) 2016 Cisco Systems, Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,4 +20,7 @@
 
 import setuptools
 
-setuptools.setup(setup_requires=['pbr'], pbr=True)
+if __name__ == "__main__":
+    setuptools.setup(
+        use_scm_version=True, setup_requires=["setuptools_scm"],
+    )
