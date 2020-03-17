@@ -56,26 +56,26 @@ class Interpolator(object):
 
 
 class TemplateWithDefaults(string.Template):
-    idpattern = r'[_a-z][_a-z0-9]*(?::?-[^}]+)?'
+    idpattern = r"[_a-z][_a-z0-9]*(?::?-[^}]+)?"
 
     # Modified from python2.7/string.py
     def substitute(self, mapping):
         # Helper function for .sub()
         def convert(mo):
             # Check the most common path first.
-            named = mo.group('named') or mo.group('braced')
+            named = mo.group("named") or mo.group("braced")
             if named is not None:
-                if ':-' in named:
-                    var, _, default = named.partition(':-')
+                if ":-" in named:
+                    var, _, default = named.partition(":-")
                     return mapping.get(var) or default
-                if '-' in named:
-                    var, _, default = named.partition('-')
+                if "-" in named:
+                    var, _, default = named.partition("-")
                     return mapping.get(var, default)
-                val = mapping.get(named, '')
-                return '%s' % (val, )
-            if mo.group('escaped') is not None:
+                val = mapping.get(named, "")
+                return "%s" % (val,)
+            if mo.group("escaped") is not None:
                 return self.delimiter
-            if mo.group('invalid') is not None:
+            if mo.group("invalid") is not None:
                 self._invalid(mo)
 
         return self.pattern.sub(convert, self.template)
