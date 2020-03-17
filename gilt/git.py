@@ -118,7 +118,9 @@ def overlay(repository, files, version, debug=False):
                 if os.path.isdir(fc.dst) and os.path.isdir(fc.src):
                     shutil.rmtree(fc.dst)
                 util.copy(fc.src, fc.dst)
-                msg = "  - copied ({}) {} to {}".format(version, fc.src, fc.dst)
+                msg = "  - copied ({}) {} to {}".format(
+                    version, fc.src, fc.dst
+                )
                 util.print_info(msg)
 
 

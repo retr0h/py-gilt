@@ -101,7 +101,9 @@ def _get_files_config(src_dir, files_list):
         "FilesConfig", ["src", "dst", "post_commands"]
     )
 
-    return [FilesConfig(**d) for d in _get_files_generator(src_dir, files_list)]
+    return [
+        FilesConfig(**d) for d in _get_files_generator(src_dir, files_list)
+    ]
 
 
 def _get_remotes_config(remotes):

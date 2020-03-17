@@ -5,9 +5,9 @@
   devel: true
   remotes:
     - name: mirror
-      url: https://github.com/tterranigma/ansible-tcpdump
+      url: https://github.com/retr0h/gilt.git
     - name: upstream
-      url: https://github.com/tterranigma/ansible-tcpdump
+      url: https://github.com/retr0h/gilt.git
 
 - git: https://github.com/lorin/openstack-ansible-modules.git
   version: master
