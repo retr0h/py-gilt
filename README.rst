@@ -2,8 +2,9 @@
 gilt
 ****
 
-NOTE: this repository has been recently (2023-11-12) moved to
-_`go-gilt`: https://github.com/retr0h/gilt.
+NOTE: this repository has been recently (2023-11-12) moved to `go-gilt`_.
+
+.. _`go-gilt`: https://github.com/retr0h/gilt
 
 License
 =======
