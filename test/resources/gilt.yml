@@ -2,6 +2,12 @@
 - git: https://github.com/retr0h/ansible-etcd.git
   version: master
   dst: roles/retr0h.ansible-etcd/
+  devel: true
+  remotes:
+    - name: mirror
+      url: https://github.com/retr0h/gilt.git
+    - name: upstream
+      url: https://github.com/retr0h/gilt.git
 
 - git: https://github.com/lorin/openstack-ansible-modules.git
   version: master

@@ -24,7 +24,6 @@ import os
 import urllib.parse
 
 import yaml
-
 from gilt import interpolation
 
 
@@ -53,6 +52,8 @@ def config(filename):
             "src",
             "dst",
             "files",
+            "devel",
+            "remotes",
             "post_commands",
         ],
     )
@@ -105,6 +106,12 @@ def _get_files_config(src_dir, files_list):
     ]
 
 
+def _get_remotes_config(remotes):
+    RemotesConfig = collections.namedtuple("RemotesConfig", ["name", "url"])
+
+    return [RemotesConfig(**d) for d in _get_remotes_generator(remotes)]
+
+
 def _get_config_generator(filename):
     """A generator which populates and return a dict.
 
@@ -122,8 +129,11 @@ def _get_config_generator(filename):
         files = d.get("files")
         post_commands = d.get("post_commands", [])
         dst_dir = None
+        devel = d.get("devel", False)
+        remotes = []
         if not files:
             dst_dir = _get_dst_dir(d["dst"])
+            remotes = d.get("remotes")
         yield {
             "git": repo,
             "lock_file": os.path.join(
@@ -134,6 +144,8 @@ def _get_config_generator(filename):
             "src": src_dir,
             "dst": dst_dir,
             "files": _get_files_config(src_dir, files),
+            "devel": devel,
+            "remotes": _get_remotes_config(remotes),
             "post_commands": post_commands,
         }
 
@@ -153,6 +165,12 @@ def _get_files_generator(src_dir, files_list):
                 "dst": _get_dst_dir(d["dst"]),
                 "post_commands": d.get("post_commands", []),
             }
+
+
+def _get_remotes_generator(remotes):
+    if remotes:
+        for remote in remotes:
+            yield {"name": remote.get("name"), "url": remote.get("url")}
 
 
 def _get_config(filename):
